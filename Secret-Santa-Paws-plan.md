@@ -1,0 +1,98 @@
+# Secret Santa Paws – project plan
+
+*Saved: 25/10/2026. Status: **planning only, nothing built yet.** On hold until Kathryn has spoken to the organiser.*
+
+**To resume:** start a new chat, attach this file and the header picture, and say "Please carry on with the Secret Santa Paws build from this plan."
+
+---
+
+## 1. The problem
+
+- About 80 Instagram accounts take part in a Secret Santa for their dogs.
+- Last year's Play Store app:
+  - sent only the dog's name, so addresses had to be messaged separately
+  - lost some messages
+  - had no master list of who was matched with whom, so chasing missing matches took a lot of time
+  - needed every name typed in by hand
+- The group didn't want personal data (names and addresses) going into a third-party app.
+- Everyone taking part has agreed to their details being shared **within the group** through the spreadsheet. That isn't the same as sharing them with a third-party app.
+- The group already keeps a spreadsheet (.xlsx) with these columns: **IG Account, Dog's Name, Address, Email address**.
+
+## 2. What we're building
+
+**A single web page called "Secret Santa Paws",** used by the **organiser** on any device (Windows PC, Mac, Linux, iPhone or Android) through a web browser.
+
+- **Address:** `https://spr1ngw1ll0wtr33.github.io/SecretSantaPaws/` (published free with GitHub Pages)
+- **Nothing to install.** The organiser just opens the link.
+- **Privacy:** GitHub only holds the blank page. The spreadsheet is read and processed **on the organiser's own device** and is never uploaded anywhere. The page will say so.
+
+### What it does, step by step
+
+1. **Load:** the organiser chooses the spreadsheet. The page checks for problems (a missing email, the same account entered twice, a blank address) and lists them in plain English before going further.
+2. **Match:** everyone gives one gift and receives one gift, and nobody gets themselves. An automatic check confirms this on screen. A warning appears before matching again, because re-matching gives completely new pairings.
+3. **Master list:** shown on screen and downloadable as a spreadsheet (giver, giver's email, giftee's account, dog name(s), address, sent yes/no). A **"Reload saved master list"** button lets the organiser pick up where they left off without re-matching.
+4. **Send by email:** one row per person, with buttons:
+   - **Send via Gmail** (opens Gmail in the browser with the message filled in)
+   - **Send via Outlook.com** (likewise, for Hotmail/Outlook.com users)
+   - **Email app** (opens the device's own email program; reliable on phones, less so on Windows PCs unless an email program is set up)
+   - **Copy message** (fallback: paste into anything)
+
+   A setting hides the buttons the organiser doesn't need.
+5. **Tick-off list:** a tick box on each row, with a counter ("34 of 80 sent"). Ticks are remembered on that device if the browser is closed, and the "Sent" column goes into the master list download.
+6. **The message to each person** contains the giftee's **Instagram account name, dog name(s) and postal address**, plus the **group rules**.
+
+## 3. Decisions made
+
+| Topic | Decision |
+|---|---|
+| Sending method | **Email only.** No Instagram sending, to avoid any risk of accounts being flagged. The master list is the back-up for chasing missed messages. |
+| Entries | **One per Instagram account.** Accounts with several dogs share one gift budget. |
+| Multiple dogs | All in **one cell** (e.g. "Bella & Max"), used exactly as typed. |
+| Exclusions | **None needed.** It doesn't matter if people were matched last year. |
+| Organiser | **Sees everything** (the master list is shown openly). They found out everything last year anyway, and would rather know up front. |
+| Rules text | **Kathryn will write it.** The page has an editable rules box; placeholder wording until then. |
+| Name | **Secret Santa Paws** |
+| Installable app? | **No**, just a plain web page. This avoids clashes with Garden Diary, Memory Jar and Boundaries (no manifest or service worker; storage keys prefixed `santapaws-`; never clears shared storage). |
+| Sharing | Nothing shared with the group until a working version has been built and tested. |
+
+## 4. Look and feel
+
+Based on Kathryn's illustration: four cartoon dogs (cream, white Westie-type, black curly, brown terrier) with presents around a decorated Christmas tree wearing an elf hat, in snow.
+
+- **The illustration as the banner** at the top of the page (file: `header.jpg`). It will be publicly visible, so Kathryn should be happy it's hers to use.
+- Hand-drawn cartoon style: white or snowy background, **thick dark outlines** on cards and buttons, rounded shapes.
+- Colours: **Christmas-tree green, scarf red, gold, cream, near-black outlines**.
+- A red-and-white knitted-scarf pattern as a decorative border.
+- Pale blue-grey snow dots in the background.
+- A friendly rounded heading font, plain readable body text, and large buttons that work on a phone.
+
+## 5. Questions for the organiser (before building)
+
+1. **Which device** will they use to run the draw (Windows PC, Mac, iPhone, Android, tablet)?
+2. **How do they normally read and send email?** (Gmail website, Outlook.com/Hotmail website, the Outlook program, a phone mail app.) This decides which send buttons to show.
+3. Are they happy to run the matching on their own device and see the full master list?
+4. **Rules for the message:** spending limit (shared between dogs on one account), posting deadline, whether gifts say who they're from, any reveal post on Instagram, what to do if a parcel doesn't arrive.
+5. Is the spreadsheet up to date? Does **every row have an email address** and a **complete postal address with postcode**?
+6. Is **anyone overseas**? (Postage costs and deadlines.)
+7. **The date they want to run the draw**, so the build and testing can be timed from it.
+
+## 6. Things to know (caveats)
+
+- **The real spreadsheet must never be put on GitHub.** The repository will be public; only a made-up test spreadsheet goes there.
+- **Windows "Email app" button:** only works if an email program is installed and set as the default. People who use Gmail or Hotmail in a browser should use the Gmail or Outlook.com buttons instead.
+- **Gmail and Outlook.com buttons:** these use long-standing web links that work reliably, but as far as I know Google and Microsoft don't officially document them, so they could change. Test a few days before the draw; the Copy button is the fallback.
+- **iPhone:** the spreadsheet needs to be saved in the Files app before the page can open it.
+- **Gmail sending limits:** sending 80 emails by hand through normal Gmail is fine in ordinary use. If there are problems, send in batches with short breaks.
+- **Emails can land in spam or junk.** Suggest everyone checks their spam folder, and perhaps adds the organiser's address to their contacts beforehand.
+- **Data protection:** a group of friends sharing details informally for a personal activity is *probably* covered by the UK GDPR "household" exemption. This isn't legal advice. Delete the master list once all gifts have arrived.
+
+## 7. Build steps (when we resume)
+
+1. Create the page (`index.html`, one file) plus `header.jpg`, and a **made-up test spreadsheet** of 80 accounts, some with "Dog & Dog" entries.
+2. Test it in a browser: load, match, check, download and reload the master list, tick-off memory, and the email buttons.
+3. Send Kathryn screenshots at phone and PC size for comments on the look.
+4. Kathryn creates the `SecretSantaPaws` repository on GitHub and switches on GitHub Pages, with **numbered, click-by-click instructions**. Alternatively, Kathryn gives this session access and Claude uploads the files.
+5. **Test on real devices:** Kathryn's Zorin PC and Samsung phone, then the organiser's own device.
+6. **Trial run:** a real send to 2–3 volunteers before the full draw.
+
+**Estimated effort for Kathryn:** about 2–4 hours across a few sittings, mostly testing. Comfortably achievable within two weeks.
