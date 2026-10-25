@@ -1,6 +1,6 @@
 # Secret Santa Paws – project plan
 
-*Saved: 25/10/2026. Status: **planning only, nothing built yet.** On hold until Kathryn has spoken to the organiser.*
+*Saved: 25/10/2026. Status: **first working version built and tested** (index.html, matching.js). Organiser has agreed to the build. Not yet published or shared.*
 
 **To resume:** start a new chat, attach this file and the header picture, and say "Please carry on with the Secret Santa Paws build from this plan."
 
@@ -86,7 +86,35 @@ Based on Kathryn's illustration: four cartoon dogs (cream, white Westie-type, bl
 - **Emails can land in spam or junk.** Suggest everyone checks their spam folder, and perhaps adds the organiser's address to their contacts beforehand.
 - **Data protection:** a group of friends sharing details informally for a personal activity is *probably* covered by the UK GDPR "household" exemption. This isn't legal advice. Delete the master list once all gifts have arrived.
 
-## 7. Build steps (when we resume)
+## 7. Update 25/10/2026: country rule and first build
+
+### New rule: Will Send To
+- Some people will only send to certain countries (to avoid overseas postage). This is a **hard rule**.
+- It only controls who someone **sends to**, never who they receive from.
+- Two people may only be each other's Secret Santa (a "swap") **when there is no other way**, e.g. two people in Iceland who both say "Iceland only".
+- If no complete match is possible, the app explains why; the organiser then messages those concerned so they can change their choice or drop out.
+
+### Spreadsheet headings (agreed)
+IG Account | Dog's Name | Address | Country of Residence | Will Send To | Email Address
+(Older headings such as "Preferred Location For Gifting" and "Email addresses" are also recognised.)
+
+### What can go in the country columns
+- **Country of Residence**: one of United Kingdom (UK), United States of America (USA), Canada, Australia, Iceland, Japan, Germany, Netherlands (The Netherlands), France, Italy, Croatia. Short forms and capitals don't matter.
+- **Will Send To**: `Any`, or countries separated by commas or "or" (e.g. `Canada, USA`), or the group `EU` (the 27 EU member states). Note: **Iceland is not in the EU.**
+- New countries are added in one line at the top of `matching.js`.
+
+### Built and tested
+- `index.html` (the page), `matching.js` (countries and matching), `xlsx.full.min.js` (SheetJS 0.18.5 spreadsheet library, bundled), `header.jpg`, `test-dummy.xlsx` (80 made-up accounts).
+- Matching checked against every possible arrangement for 3,000 random small groups, and 200 realistic 80-account groups (all verified, under 0.1 seconds each).
+- Kathryn's 4-row test sheet: both possible arrangements found.
+- Browser test at phone and PC size: load, match, checks, master list download and reload, Sent ticks remembered, clear.
+
+### Still to do
+- Fill in spending limits (edit in step 4 of the page, or in `index.html`).
+- Organiser's device and email set-up, then test the send buttons on it.
+- Publish with GitHub Pages; test on Kathryn's Zorin PC and Samsung phone; trial run with 2–3 volunteers.
+
+## 8. Original build steps
 
 1. Create the page (`index.html`, one file) plus `header.jpg`, and a **made-up test spreadsheet** of 80 accounts, some with "Dog & Dog" entries.
 2. Test it in a browser: load, match, check, download and reload the master list, tick-off memory, and the email buttons.

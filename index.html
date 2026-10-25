@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Secret Santa Paws</title>
+<meta name="description" content="Matches the Secret Santa Paws gift exchange and helps the organiser email everyone their match.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7fbfd;
+    --snow: #c9dbe6;
+    --card: #ffffff;
+    --ink: #1f1a17;
+    --muted: #5b524b;
+    --green: #2e6b3c;
+    --green-soft: #e3efe4;
+    --red: #b3312b;
+    --red-soft: #f8e1df;
+    --gold: #d79f2a;
+    --gold-soft: #fbf0d6;
+    --cream: #fbf5e8;
+    --line: #1f1a17;
+    --shadow: #1f1a17;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #142019; --snow: #2c4038; --card: #1f2c25; --ink: #f4eee2; --muted: #c4baa9;
+      --green: #6fbf80; --green-soft: #22392a; --red: #ef7a72; --red-soft: #3d2422;
+      --gold: #f0c35a; --gold-soft: #3a3020; --cream: #26352d; --line: #e9e1d2; --shadow: #000000;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #142019; --snow: #2c4038; --card: #1f2c25; --ink: #f4eee2; --muted: #c4baa9;
+    --green: #6fbf80; --green-soft: #22392a; --red: #ef7a72; --red-soft: #3d2422;
+    --gold: #f0c35a; --gold-soft: #3a3020; --cream: #26352d; --line: #e9e1d2; --shadow: #000000;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: 'Nunito', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--ink);
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(circle, var(--snow) 2.5px, transparent 3px),
+      radial-gradient(circle, var(--snow) 1.5px, transparent 2px);
+    background-size: 90px 90px, 55px 55px;
+    background-position: 0 0, 27px 33px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 16px 16px 60px; }
+
+  /* Header */
+  header { text-align: center; padding-top: 8px; }
+  .hero {
+    display: inline-block;
+    background: #fff;
+    border: 3px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 5px 5px 0 var(--shadow);
+    padding: 6px;
+    width: min(340px, 82vw);
+  }
+  .hero img { display: block; width: 100%; height: auto; border-radius: 16px; }
+  h1 {
+    font-family: 'Mountains of Christmas', 'Nunito', cursive;
+    font-size: clamp(40px, 10vw, 64px);
+    line-height: 1.05;
+    margin: 18px 0 4px;
+    color: var(--red);
+    text-shadow: 2px 2px 0 var(--card);
+  }
+  .tagline { margin: 0 0 6px; color: var(--muted); font-weight: 700; }
+  .privacy {
+    display: inline-block; margin: 10px auto 0; padding: 8px 14px;
+    background: var(--green-soft); border: 2px solid var(--green); border-radius: 999px;
+    font-size: 15px;
+  }
+
+  /* Cards */
+  .card {
+    position: relative;
+    background: var(--card);
+    border: 3px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 5px 5px 0 var(--shadow);
+    margin: 28px 0 0;
+    padding: 30px 20px 20px;
+    overflow: hidden;
+  }
+  .card::before {           /* knitted scarf band */
+    content: '';
+    position: absolute; left: 0; right: 0; top: 0; height: 12px;
+    background:
+      repeating-linear-gradient(135deg, transparent 0 6px, rgba(255,255,255,.85) 6px 9px, transparent 9px 15px),
+      var(--red);
+    border-bottom: 3px solid var(--line);
+  }
+  .card.green::before { background: repeating-linear-gradient(135deg, transparent 0 6px, rgba(255,255,255,.85) 6px 9px, transparent 9px 15px), var(--green); }
+  .card.gold::before { background: repeating-linear-gradient(135deg, transparent 0 6px, rgba(255,255,255,.85) 6px 9px, transparent 9px 15px), var(--gold); }
+  .card h2 { margin: 0 0 6px; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+  .step {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; flex: none;
+    border: 3px solid var(--line); border-radius: 50%;
+    background: var(--gold); color: #1f1a17; font-weight: 800; font-size: 17px;
+  }
+  .card p { margin: 6px 0 12px; }
+  .hint { color: var(--muted); font-size: 15px; }
+  .hidden { display: none !important; }
+
+  /* Buttons */
+  .btn, .filebtn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 46px; padding: 10px 18px;
+    font: 800 16px 'Nunito', system-ui, sans-serif;
+    color: #fff; background: var(--green);
+    border: 3px solid var(--line); border-radius: 14px;
+    box-shadow: 3px 3px 0 var(--shadow);
+    cursor: pointer; text-decoration: none;
+    transition: transform .05s ease;
+  }
+  .btn:active, .filebtn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow); }
+  .btn.red { background: var(--red); }
+  .btn.plain { background: var(--card); color: var(--ink); }
+  .btn.small { min-height: 40px; padding: 6px 12px; font-size: 15px; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  :root[data-theme="dark"] .btn:not(.plain), :root[data-theme="dark"] .filebtn { color: #10180f; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn:not(.plain), :root:not([data-theme="light"]) .filebtn { color: #10180f; }
+  }
+  .filebtn input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  /* Messages */
+  .note { border: 2px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 12px 0; }
+  .note.good { background: var(--green-soft); border-color: var(--green); }
+  .note.bad { background: var(--red-soft); border-color: var(--red); }
+  .note.warn { background: var(--gold-soft); border-color: var(--gold); }
+  .note h3 { margin: 0 0 6px; font-size: 17px; }
+  .note ul { margin: 4px 0 0; padding-left: 22px; }
+  .note li { margin: 4px 0; white-space: pre-line; }
+  .checks { list-style: none; padding: 0 !important; }
+  .checks li::before { content: '\2714\FE0E  '; color: var(--green); font-weight: 800; }
+  .checks li.no::before { content: '\2718\FE0E  '; color: var(--red); }
+
+  /* Summary chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .chip { border: 2px solid var(--line); border-radius: 999px; padding: 3px 12px; background: var(--cream); font-size: 15px; font-weight: 700; }
+
+  /* Table */
+  .tablewrap { overflow-x: auto; border: 2px solid var(--line); border-radius: 12px; margin-top: 12px; max-height: 480px; overflow-y: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--snow); vertical-align: top; }
+  th { position: sticky; top: 0; background: var(--cream); z-index: 1; }
+  td.addr { white-space: pre-line; min-width: 200px; }
+
+  /* Message editor */
+  label.lbl { display: block; font-weight: 800; margin: 14px 0 6px; }
+  input[type=text], textarea {
+    width: 100%; font: 16px/1.45 'Nunito', system-ui, sans-serif; color: var(--ink);
+    background: var(--cream); border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px;
+  }
+  textarea { min-height: 320px; resize: vertical; }
+  .preview { white-space: pre-wrap; background: var(--cream); border: 2px dashed var(--line); border-radius: 12px; padding: 12px; font-size: 15px; max-height: 360px; overflow-y: auto; }
+  code.ph { background: var(--gold-soft); border: 1px solid var(--gold); border-radius: 6px; padding: 0 5px; font-size: 14px; white-space: nowrap; }
+
+  /* Sending list */
+  .progress { height: 18px; border: 2px solid var(--line); border-radius: 999px; background: var(--cream); overflow: hidden; margin: 6px 0 4px; }
+  .progress > div { height: 100%; width: 0; background: repeating-linear-gradient(135deg, var(--green) 0 10px, #3f8a50 10px 20px); transition: width .2s; }
+  .sendopts { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 8px 0 4px; }
+  .sendopts label, .tick { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; }
+  input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--green); }
+  .person {
+    border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; margin: 12px 0;
+    background: var(--card);
+  }
+  .person.sent { background: var(--green-soft); border-color: var(--green); }
+  .person .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .person .who { font-weight: 800; font-size: 17px; word-break: break-word; }
+  .person .email { color: var(--muted); font-size: 14px; word-break: break-all; }
+  .person .giftee { font-size: 15px; margin: 6px 0 10px; }
+  .person .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .filter { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  .filter input[type=text] { flex: 1 1 200px; width: auto; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+    background: var(--ink); color: var(--card); padding: 10px 18px; border-radius: 999px;
+    font-weight: 800; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 10;
+    max-width: calc(100vw - 32px); text-align: center;
+  }
+  .toast.show { opacity: 1; }
+  footer { text-align: center; margin-top: 36px; color: var(--muted); font-size: 14px; }
+  details summary { cursor: pointer; font-weight: 800; }
+  details { margin-top: 10px; }
+
+  @media (max-width: 520px) {
+    body { font-size: 16px; }
+    .card { padding: 28px 14px 16px; }
+    .person .btns .btn { flex: 1 1 calc(50% - 8px); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="hero"><img src="header.jpg" alt="Four cartoon dogs in Christmas scarves holding presents around a decorated tree in the snow"></div>
+    <h1>Secret Santa Paws</h1>
+    <p class="tagline">The gift exchange organiser</p>
+    <div class="privacy">&#128274;&#xFE0E; Your spreadsheet stays on this device. Nothing is uploaded anywhere.</div>
+  </header>
+
+  <!-- STEP 1 -->
+  <section class="card" id="step1">
+    <h2><span class="step">1</span> Load the spreadsheet</h2>
+    <p>Choose the participants spreadsheet (.xlsx). It needs these headings in the first row:
+      <b>IG Account</b>, <b>Dog's Name</b>, <b>Address</b>, <b>Country of Residence</b>, <b>Will Send To</b>, <b>Email Address</b>.</p>
+    <div class="row">
+      <label class="filebtn">&#128194;&#xFE0E; Choose spreadsheet
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+      </label>
+      <label class="filebtn" style="background:var(--card);color:var(--ink)">&#8617;&#xFE0E; Reload a saved master list
+        <input type="file" id="masterInput" accept=".xlsx,.xls">
+      </label>
+    </div>
+    <div id="loadResult"></div>
+    <details>
+      <summary>Which countries and choices does the app understand?</summary>
+      <div id="countryHelp" class="hint"></div>
+    </details>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="card green hidden" id="step2">
+    <h2><span class="step">2</span> Make the matches</h2>
+    <p>Everyone sends one gift and receives one, nobody gets themselves, and everyone's <b>Will Send To</b> rule is followed.
+      Two people only send to each other when there's no other way.</p>
+    <button class="btn red" id="matchBtn">&#127873;&#xFE0E; Make the matches</button>
+    <div id="matchResult"></div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="card gold hidden" id="step3">
+    <h2><span class="step">3</span> Master list</h2>
+    <p><b>Download this before sending anything.</b> It's your back-up if any emails go astray, and you can reload it in step 1 to carry on later.</p>
+    <div class="row">
+      <button class="btn" id="downloadBtn">&#11015;&#xFE0E; Download master list</button>
+    </div>
+    <div class="tablewrap"><table id="masterTable"></table></div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="card hidden" id="step4">
+    <h2><span class="step">4</span> The email</h2>
+    <p>Edit the wording here (for example, to fill in the spending limits). These markers are swapped for each person's match:
+      <code class="ph">&lt;Dog Name(s)&gt;</code> <code class="ph">&lt;IG Account&gt;</code> <code class="ph">&lt;Address&gt;</code> <code class="ph">&lt;Email Address&gt;</code></p>
+    <label class="lbl" for="subject">Subject line</label>
+    <input type="text" id="subject">
+    <label class="lbl" for="template">Message</label>
+    <textarea id="template" spellcheck="true"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn plain small" id="resetTemplate">Put back the original wording</button>
+    </div>
+    <label class="lbl">Preview (first person on the list)</label>
+    <div class="preview" id="preview"></div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="card green hidden" id="step5">
+    <h2><span class="step">5</span> Send the emails</h2>
+    <p>For each person, press a send button, check the email, press <b>Send</b> in your email, then tick <b>Sent</b> here. Ticks are remembered on this device.</p>
+    <div><b>Show these buttons:</b></div>
+    <div class="sendopts" id="sendOpts">
+      <label><input type="checkbox" value="gmail"> Gmail</label>
+      <label><input type="checkbox" value="outlook"> Outlook.com / Hotmail</label>
+      <label><input type="checkbox" value="mailto"> Email app</label>
+      <label><input type="checkbox" value="copy"> Copy</label>
+    </div>
+    <p class="hint">Gmail and Outlook.com open in a new browser tab, so you need to be logged in to them. "Email app" opens the email program on this device. "Copy" copies the address, subject and message so you can paste them anywhere.</p>
+    <div id="counter" style="font-weight:800"></div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div class="filter">
+      <input type="text" id="search" placeholder="Find an account or email&hellip;">
+      <label class="tick"><input type="checkbox" id="unsentOnly"> Only show not sent</label>
+    </div>
+    <div id="sendList"></div>
+  </section>
+
+  <footer>
+    <p><button class="btn plain small" id="clearBtn">Clear everything saved on this device</button></p>
+    <p>Secret Santa Paws &middot; made for a dog-loving gift exchange</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="xlsx.full.min.js"></script>
+<script src="matching.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------
+     THE EMAIL WORDING – edit here to change the original wording.
+     ------------------------------------------------------------------ */
+  var DEFAULT_SUBJECT = 'Secret Santa Paws 2026 – your match';
+  var DEFAULT_TEMPLATE = [
+    'Secret Santa Paws Gift Exchange 2026',
+    '',
+    'Thank you for taking part in the 2026 Secret Santa Paws Gift Exchange. This email includes the details of the dog that has been selected for you to send a gift to, including their Instagram account name, name of the dog and their full address and email.',
+    '',
+    'You can choose to send your gift directly to your match or to purchase a gift online from a store in their country that can deliver to them on your behalf. The maximum amount you should spend on the gift is shown in the currency table below. This is the maximum amount per account not per dog, so where an account has more than one dog, this amount is shared amongst them. Please note this is a maximum amount and if you want to gift less or you want to make something to send yourself you should feel free to do so.',
+    '',
+    'The maximum amount does not include packing and postage charges. Please do check the import restrictions for the country you are sending to, as not all allow imports for items such as dog treats. If you are required to complete a customs form, you should do so fully and make sure that you indicate your parcel is a gift to avoid the recipient incurring any unnecessary fees.',
+    '',
+    'If you are sending directly, then you may also include in your parcel a card or note to tell your match who their Secret Santa Paws is. If this is not possible or you are sending your gift via a store, you can instead DM them on the opening day, so they know it is you.',
+    '',
+    'Once you have purchased your gift, you should arrange shipment of it as soon as possible. All gifts should arrive latest by Sunday 20th December 2026, when we will have our special opening day.',
+    '',
+    'On the 20th December you are free to open your gift, and post showing what you have received and to thank your Secret Santa Paws. You should use the hashtag #secretsantapaws2026.',
+    '',
+    'If you have any questions feel free to ask them in the gifting group. Please do not reply to this email, as we are trying to keep the admin to a minimum.',
+    '',
+    'Your match is:',
+    '<Dog Name(s)>',
+    '<IG Account>',
+    '<Address>',
+    '<Email Address>',
+    '',
+    'Maximum Gift Amount',
+    '£TBA',
+    '$TBA',
+    'Euros TBA',
+    'Other Currencies TBA'
+  ].join('\n');
+
+  /* ------------------------------------------------------------------
+     Saved on this device (all keys start "santapaws-")
+     ------------------------------------------------------------------ */
+  var KEY = { draw: 'santapaws-draw', subject: 'santapaws-subject', template: 'santapaws-template', buttons: 'santapaws-buttons' };
+  function load(k, fallback) {
+    try { var v = localStorage.getItem(k); return v === null ? fallback : JSON.parse(v); } catch (e) { return fallback; }
+  }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } }
+  function forget(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { people: null, draw: null };  // draw: { people, assign, sent:[bool], swaps, made }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  var toastTimer;
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+  function show(id, on) { $(id).classList.toggle('hidden', !on); }
+  function today() {
+    var d = new Date();
+    return ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + d.getFullYear();
+  }
+  function notes(kind, title, items) {
+    if (!items.length) return '';
+    return '<div class="note ' + kind + '"><h3>' + esc(title) + '</h3><ul>' +
+      items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul></div>';
+  }
+
+  /* Country help */
+  (function () {
+    var c = SSP.COUNTRIES.map(function (x) {
+      return '<li><b>' + esc(x.name) + '</b>' + (x.also.length ? ' (also: ' + esc(x.also.join(', ')) + ')' : '') + '</li>';
+    }).join('');
+    var g = SSP.GROUPS.map(function (x) {
+      return '<li><b>' + esc(x.name) + '</b>' + (x.also.length ? ' (also: ' + esc(x.also.join(', ')) + ')' : '') +
+        ' means any of: ' + esc(x.members.join(', ')) + '</li>';
+    }).join('');
+    $('countryHelp').innerHTML =
+      '<p><b>Country of Residence</b>: one of these countries. Capital letters, full stops and "The" don\'t matter.</p><ul>' + c + '</ul>' +
+      '<p><b>Will Send To</b>: <b>Any</b>, or one or more countries above, or a group, separated by commas or "or". ' +
+      'For example: <i>Any</i> &middot; <i>UK</i> &middot; <i>Canada, USA</i> &middot; <i>UK or EU</i></p><ul>' + g + '</ul>';
+  })();
+
+  /* ------------------------------------------------------------------
+     Step 1: read a spreadsheet
+     ------------------------------------------------------------------ */
+  function readWorkbook(file, cb) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        var wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        cb(null, wb);
+      } catch (err) { cb(err); }
+    };
+    reader.onerror = function () { cb(reader.error || new Error('read failed')); };
+    reader.readAsArrayBuffer(file);
+  }
+  function sheetRows(ws) { return XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false }); }
+
+  $('fileInput').addEventListener('change', function (ev) {
+    var file = ev.target.files[0];
+    ev.target.value = '';
+    if (!file) return;
+    readWorkbook(file, function (err, wb) {
+      if (err) { $('loadResult').innerHTML = notes('bad', 'That file couldn’t be opened', ['Please check it is an Excel spreadsheet (.xlsx).']); return; }
+      var res = SSP.readParticipants(sheetRows(wb.Sheets[wb.SheetNames[0]]));
+      var html = '';
+      if (res.errors.length) {
+        html += notes('bad', 'Please fix these in the spreadsheet, then choose it again', res.errors);
+        state.people = null;
+      } else {
+        state.people = res.people;
+        var by = {};
+        res.people.forEach(function (p) { by[p.country] = (by[p.country] || 0) + 1; });
+        var anyCount = res.people.filter(function (p) { return p.any; }).length;
+        html += '<div class="note good"><h3>✔︎ ' + res.people.length + ' accounts read from “' + esc(file.name) + '”</h3>' +
+          '<div class="chips">' + Object.keys(by).sort().map(function (k) { return '<span class="chip">' + esc(k) + ': ' + by[k] + '</span>'; }).join('') + '</div>' +
+          '<div>' + anyCount + ' will send anywhere; ' + (res.people.length - anyCount) + ' have limited where they will send.</div></div>';
+      }
+      html += notes('warn', 'Worth a look (these won’t stop the draw)', res.warnings);
+      $('loadResult').innerHTML = html;
+      show('step2', !!state.people || !!state.draw);
+      $('matchBtn').disabled = !state.people;
+      if (state.draw) renderChecks(); else $('matchResult').innerHTML = '';
+      if (state.people) $('step2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  /* ------------------------------------------------------------------
+     Step 2: match
+     ------------------------------------------------------------------ */
+  $('matchBtn').addEventListener('click', function () {
+    if (!state.people) return;
+    if (state.draw && !confirm('A draw has already been made on this device.\n\nMaking new matches will REPLACE it with completely different pairings and clear the Sent ticks.\n\nOnly do this if no emails have been sent yet. Carry on?')) return;
+    var res = SSP.makeMatches(state.people);
+    if (!res.ok) {
+      $('matchResult').innerHTML = notes('bad', 'A complete match isn’t possible with these Will Send To choices', res.problems) +
+        '<p class="hint">No app could match everyone with these choices. Once the people concerned have changed their choices (or dropped out), update the spreadsheet and load it again.</p>';
+      return;
+    }
+    state.draw = {
+      people: state.people.map(function (p) {
+        return { ig: p.ig, dog: p.dog, address: p.address, country: p.country, sendToText: p.sendToText, email: p.email };
+      }),
+      assign: res.assign,
+      sent: res.assign.map(function () { return false; }),
+      swaps: res.swaps.map(function (s) { return [s[0], s[1]]; }),
+      made: new Date().toISOString()
+    };
+    save(KEY.draw, state.draw);
+    renderDraw(true);
+    toast('Matches made – now download the master list');
+  });
+
+  function renderChecks() {
+    var d = state.draw;
+    var v = SSP.verify(rehydrate(d.people), d.assign);
+    var html = '<div class="note ' + (v.ok ? 'good' : 'bad') + '"><h3>' + (v.ok ? 'Checked and correct' : 'Something is wrong – do not send') + '</h3><ul class="checks">' +
+      v.lines.map(function (l) { return '<li class="' + (l.ok ? '' : 'no') + '">' + esc(l.text) + '</li>'; }).join('') + '</ul></div>';
+    var swaps = SSP.findSwaps(d.assign);
+    if (swaps.length) {
+      html += notes('warn', 'Sending to each other (no other way was possible)', swaps.map(function (s) {
+        return d.people[s[0]].ig + ' and ' + d.people[s[1]].ig + ' are each other’s Secret Santa.';
+      }));
+    }
+    $('matchResult').innerHTML = html;
+  }
+
+  /* The saved draw keeps plain details; rebuild the rule fields for checking */
+  function rehydrate(list) {
+    return list.map(function (p) {
+      var st = SSP.parseSendTo(p.sendToText);
+      return { ig: p.ig, country: SSP.canonicalCountry(p.country) || p.country, any: st.any, allowed: st.countries };
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Step 3: master list
+     ------------------------------------------------------------------ */
+  var MASTER_HEAD = ['Giver IG Account', 'Giver Email', 'Giver Country', 'Giver Will Send To',
+    'Sends To IG Account', "Giftee Dog's Name", 'Giftee Address', 'Giftee Country', 'Giftee Email', 'Sent'];
+
+  function masterRows() {
+    var d = state.draw;
+    return d.assign.map(function (r, g) {
+      var a = d.people[g], b = d.people[r];
+      return [a.ig, a.email, a.country, a.sendToText, b.ig, b.dog, b.address, b.country, b.email, d.sent[g] ? 'Yes' : ''];
+    });
+  }
+
+  function renderMaster() {
+    var rows = masterRows();
+    $('masterTable').innerHTML = '<thead><tr>' + ['Giver', 'Sends to', "Dog's name", 'Address', 'Country', 'Sent'].map(function (h) { return '<th>' + h + '</th>'; }).join('') +
+      '</tr></thead><tbody>' + rows.map(function (r) {
+        return '<tr><td><b>' + esc(r[0]) + '</b><br><span class="hint">' + esc(r[1]) + '</span></td><td><b>' + esc(r[4]) + '</b></td><td>' + esc(r[5]) +
+          '</td><td class="addr">' + esc(r[6]) + '</td><td>' + esc(r[7]) + '</td><td>' + (r[9] ? '✔︎' : '') + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  $('downloadBtn').addEventListener('click', function () {
+    var ws = XLSX.utils.aoa_to_sheet([MASTER_HEAD].concat(masterRows()));
+    ws['!cols'] = [18, 26, 16, 18, 18, 16, 46, 16, 26, 6].map(function (w) { return { wch: w }; });
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Master list');
+    XLSX.writeFile(wb, 'Secret-Santa-Paws-master-list-' + today() + '.xlsx');
+    toast('Master list downloaded');
+  });
+
+  /* Reload a master list */
+  $('masterInput').addEventListener('change', function (ev) {
+    var file = ev.target.files[0];
+    ev.target.value = '';
+    if (!file) return;
+    readWorkbook(file, function (err, wb) {
+      var fail = function (msg) { $('loadResult').innerHTML = notes('bad', 'That master list couldn’t be reloaded', [msg]); };
+      if (err) return fail('Please check it is the .xlsx file downloaded in step 3.');
+      var rows = sheetRows(wb.Sheets[wb.SheetNames[0]]);
+      var head = (rows[0] || []).map(function (h) { return String(h).trim(); });
+      var col = {};
+      MASTER_HEAD.forEach(function (h) { col[h] = head.indexOf(h); });
+      if (MASTER_HEAD.some(function (h) { return col[h] === -1; })) {
+        return fail('This doesn’t look like a master list from this app. To start a new draw, use “Choose spreadsheet” instead.');
+      }
+      var data = rows.slice(1).filter(function (r) { return String(r[col['Giver IG Account']] || '').trim(); });
+      var idx = {}, people = [];
+      data.forEach(function (r) {
+        var ig = String(r[col['Giver IG Account']]).trim();
+        idx[ig] = people.length;
+        people.push({ ig: ig, email: String(r[col['Giver Email']]).trim(), country: String(r[col['Giver Country']]).trim(),
+          sendToText: String(r[col['Giver Will Send To']]).trim(), dog: '', address: '' });
+      });
+      var assign = [], sent = [], problem = null;
+      data.forEach(function (r, g) {
+        var to = String(r[col['Sends To IG Account']]).trim();
+        if (!(to in idx)) { problem = 'Row ' + (g + 2) + ': “' + to + '” isn’t one of the givers.'; return; }
+        var t = idx[to];
+        assign[g] = t;
+        people[t].dog = String(r[col["Giftee Dog's Name"]]).trim();
+        people[t].address = String(r[col['Giftee Address']]).replace(/\r\n/g, '\n').trim();
+        sent[g] = /^(yes|y|true|x|✔)/i.test(String(r[col.Sent]).trim());
+      });
+      if (problem) return fail(problem);
+      state.draw = { people: people, assign: assign, sent: sent, made: new Date().toISOString() };
+      var v = SSP.verify(rehydrate(people), assign);
+      if (!v.ok) return fail('The list doesn’t check out: ' + v.lines.filter(function (l) { return !l.ok; }).map(function (l) { return l.text; }).join('; ') + '.');
+      save(KEY.draw, state.draw);
+      $('loadResult').innerHTML = notes('good', 'Master list reloaded', [people.length + ' matches, ' + sent.filter(Boolean).length + ' marked as sent. Carry on from step 5.']);
+      show('step2', false);
+      renderDraw(true);
+    });
+  });
+
+  /* ------------------------------------------------------------------
+     Step 4: email wording
+     ------------------------------------------------------------------ */
+  $('subject').value = load(KEY.subject, DEFAULT_SUBJECT);
+  $('template').value = load(KEY.template, DEFAULT_TEMPLATE);
+  $('subject').addEventListener('input', function () { save(KEY.subject, this.value); renderPreview(); });
+  $('template').addEventListener('input', function () { save(KEY.template, this.value); renderPreview(); });
+  $('resetTemplate').addEventListener('click', function () {
+    if (!confirm('Replace your edits with the original wording?')) return;
+    $('subject').value = DEFAULT_SUBJECT; $('template').value = DEFAULT_TEMPLATE;
+    save(KEY.subject, DEFAULT_SUBJECT); save(KEY.template, DEFAULT_TEMPLATE);
+    renderPreview();
+  });
+
+  function messageFor(g) {
+    var d = state.draw, b = d.people[d.assign[g]];
+    var body = $('template').value
+      .replace(/<\s*Dog'?s? Name(\(s\))?\s*>/gi, b.dog)
+      .replace(/<\s*IG Account\s*>/gi, b.ig)
+      .replace(/<\s*Address\s*>/gi, b.address)
+      .replace(/<\s*Email Address(es)?\s*>/gi, b.email);
+    return { to: d.people[g].email, subject: $('subject').value, body: body };
+  }
+  function renderPreview() {
+    if (!state.draw) return;
+    var m = messageFor(0);
+    $('preview').textContent = 'To: ' + m.to + '\nSubject: ' + m.subject + '\n\n' + m.body;
+  }
+
+  /* ------------------------------------------------------------------
+     Step 5: sending
+     ------------------------------------------------------------------ */
+  var buttons = load(KEY.buttons, ['gmail', 'outlook', 'mailto', 'copy']);
+  Array.prototype.forEach.call($('sendOpts').querySelectorAll('input'), function (cb) {
+    cb.checked = buttons.indexOf(cb.value) !== -1;
+    cb.addEventListener('change', function () {
+      buttons = Array.prototype.filter.call($('sendOpts').querySelectorAll('input'), function (x) { return x.checked; }).map(function (x) { return x.value; });
+      save(KEY.buttons, buttons);
+      renderSendList();
+    });
+  });
+  $('search').addEventListener('input', renderSendList);
+  $('unsentOnly').addEventListener('change', renderSendList);
+
+  function links(m) {
+    var e = encodeURIComponent;
+    return {
+      gmail: 'https://mail.google.com/mail/?view=cm&fs=1&to=' + e(m.to) + '&su=' + e(m.subject) + '&body=' + e(m.body),
+      outlook: 'https://outlook.live.com/mail/0/deeplink/compose?to=' + e(m.to) + '&subject=' + e(m.subject) + '&body=' + e(m.body),
+      mailto: 'mailto:' + m.to + '?subject=' + e(m.subject) + '&body=' + e(m.body.replace(/\r?\n/g, '\r\n'))
+    };
+  }
+
+  function renderCounter() {
+    var d = state.draw, done = d.sent.filter(Boolean).length, n = d.sent.length;
+    $('counter').textContent = done + ' of ' + n + ' sent' + (done === n ? ' – all done! 🎄' : '');
+    $('progressBar').style.width = (n ? (100 * done / n) : 0) + '%';
+  }
+
+  function renderSendList() {
+    var d = state.draw;
+    if (!d) return;
+    var q = $('search').value.trim().toLowerCase(), unsentOnly = $('unsentOnly').checked;
+    var html = '';
+    d.assign.forEach(function (r, g) {
+      var a = d.people[g], b = d.people[r];
+      if (unsentOnly && d.sent[g]) return;
+      if (q && (a.ig + ' ' + a.email + ' ' + b.ig).toLowerCase().indexOf(q) === -1) return;
+      var m = messageFor(g), l = links(m), btns = '';
+      if (buttons.indexOf('gmail') !== -1) btns += '<a class="btn small" target="_blank" rel="noopener" href="' + esc(l.gmail) + '">Gmail</a>';
+      if (buttons.indexOf('outlook') !== -1) btns += '<a class="btn small" target="_blank" rel="noopener" href="' + esc(l.outlook) + '">Outlook.com</a>';
+      if (buttons.indexOf('mailto') !== -1) btns += '<a class="btn small" href="' + esc(l.mailto) + '">Email app</a>';
+      if (buttons.indexOf('copy') !== -1) btns += '<button class="btn plain small" data-copy="' + g + '">Copy</button>';
+      html += '<div class="person' + (d.sent[g] ? ' sent' : '') + '">' +
+        '<div class="top"><div><div class="who">' + esc(a.ig) + '</div><div class="email">' + esc(a.email) + '</div></div>' +
+        '<label class="tick"><input type="checkbox" data-sent="' + g + '"' + (d.sent[g] ? ' checked' : '') + '> Sent</label></div>' +
+        '<div class="giftee">&#127873;&#xFE0E; sends to <b>' + esc(b.ig) + '</b> (' + esc(b.dog) + ', ' + esc(b.country) + ')</div>' +
+        '<div class="btns">' + (btns || '<span class="hint">Choose at least one button type above.</span>') + '</div></div>';
+    });
+    $('sendList').innerHTML = html || '<p class="hint">Nobody matches that search.</p>';
+  }
+
+  $('sendList').addEventListener('change', function (ev) {
+    var g = ev.target.getAttribute('data-sent');
+    if (g === null) return;
+    state.draw.sent[+g] = ev.target.checked;
+    save(KEY.draw, state.draw);
+    ev.target.closest('.person').classList.toggle('sent', ev.target.checked);
+    renderCounter(); renderMaster();
+  });
+
+  $('sendList').addEventListener('click', function (ev) {
+    var btn = ev.target.closest('[data-copy]');
+    if (!btn) return;
+    var m = messageFor(+btn.getAttribute('data-copy'));
+    var text = 'To: ' + m.to + '\nSubject: ' + m.subject + '\n\n' + m.body;
+    copyText(text, function (ok) { toast(ok ? 'Copied – paste it into your email' : 'Couldn’t copy on this device'); });
+  });
+
+  function copyText(text, cb) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { cb(true); }, function () { cb(fallbackCopy(text)); });
+    } else cb(fallbackCopy(text));
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  /* ------------------------------------------------------------------
+     Show everything for a draw
+     ------------------------------------------------------------------ */
+  function renderDraw(scroll) {
+    show('step2', true);
+    $('matchBtn').disabled = !state.people;
+    renderChecks();
+    show('step3', true); show('step4', true); show('step5', true);
+    renderMaster(); renderPreview(); renderCounter(); renderSendList();
+    if (scroll) $('step2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  $('clearBtn').addEventListener('click', function () {
+    if (!confirm('This removes the saved draw, Sent ticks and your email wording from this device.\n\nMake sure you have downloaded the master list first. Carry on?')) return;
+    [KEY.draw, KEY.subject, KEY.template, KEY.buttons].forEach(forget);
+    location.reload();
+  });
+
+  // Pick up where we left off
+  var saved = load(KEY.draw, null);
+  if (saved && saved.people && saved.assign) {
+    state.draw = saved;
+    renderDraw(false);
+    $('loadResult').innerHTML = notes('good', 'Carrying on with the draw saved on this device', [
+      saved.people.length + ' matches, ' + saved.sent.filter(Boolean).length + ' marked as sent.'
+    ]);
+  }
+})();
+</script>
+</body>
+</html>
