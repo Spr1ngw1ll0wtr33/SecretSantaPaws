@@ -111,7 +111,9 @@ IG Account | Dog's Name | Address | Country of Residence | Will Send To | Email 
 
 ### Still to do
 - Fill in spending limits (edit in step 4 of the page, or in `index.html`).
-- Organiser's device and email set-up, then test the send buttons on it.
+- **Organiser: Apple Mac + Gmail. Back-up admin (Kathryn): Zorin Linux PC + Gmail.** The page now shows only the Gmail and Copy buttons by default (others can be switched back on), and has an optional "Send from this Gmail address" box for browsers signed in to more than one Google account.
+- Test the Gmail button on the organiser's Mac and Kathryn's Zorin PC (a real send to 2–3 volunteers).
+- Hand-over between organiser and back-up admin is via the downloaded master list (Sent ticks are only remembered on the device where they were made).
 - Publish with GitHub Pages; test on Kathryn's Zorin PC and Samsung phone; trial run with 2–3 volunteers.
 
 ## 8. Original build steps

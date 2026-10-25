@@ -284,6 +284,9 @@
       <label><input type="checkbox" value="copy"> Copy</label>
     </div>
     <p class="hint">Gmail and Outlook.com open in a new browser tab, so you need to be logged in to them. "Email app" opens the email program on this device. "Copy" copies the address, subject and message so you can paste them anywhere.</p>
+    <label class="lbl" for="fromGmail">Send from this Gmail address (optional)</label>
+    <input type="text" id="fromGmail" inputmode="email" autocomplete="email" placeholder="e.g. organiser@gmail.com">
+    <p class="hint">Only needed if more than one Google account is signed in on this browser. It makes the Gmail button open the right one. Always check the &ldquo;From&rdquo; line before pressing Send.</p>
     <div id="counter" style="font-weight:800"></div>
     <div class="progress"><div id="progressBar"></div></div>
     <div class="filter">
@@ -343,7 +346,7 @@
   /* ------------------------------------------------------------------
      Saved on this device (all keys start "santapaws-")
      ------------------------------------------------------------------ */
-  var KEY = { draw: 'santapaws-draw', subject: 'santapaws-subject', template: 'santapaws-template', buttons: 'santapaws-buttons' };
+  var KEY = { draw: 'santapaws-draw', subject: 'santapaws-subject', template: 'santapaws-template', buttons: 'santapaws-buttons', from: 'santapaws-from' };
   function load(k, fallback) {
     try { var v = localStorage.getItem(k); return v === null ? fallback : JSON.parse(v); } catch (e) { return fallback; }
   }
@@ -590,7 +593,9 @@
   /* ------------------------------------------------------------------
      Step 5: sending
      ------------------------------------------------------------------ */
-  var buttons = load(KEY.buttons, ['gmail', 'outlook', 'mailto', 'copy']);
+  var buttons = load(KEY.buttons, ['gmail', 'copy']);
+  $('fromGmail').value = load(KEY.from, '');
+  $('fromGmail').addEventListener('input', function () { save(KEY.from, this.value.trim()); renderSendList(); });
   Array.prototype.forEach.call($('sendOpts').querySelectorAll('input'), function (cb) {
     cb.checked = buttons.indexOf(cb.value) !== -1;
     cb.addEventListener('change', function () {
@@ -603,9 +608,9 @@
   $('unsentOnly').addEventListener('change', renderSendList);
 
   function links(m) {
-    var e = encodeURIComponent;
+    var e = encodeURIComponent, from = $('fromGmail').value.trim();
     return {
-      gmail: 'https://mail.google.com/mail/?view=cm&fs=1&to=' + e(m.to) + '&su=' + e(m.subject) + '&body=' + e(m.body),
+      gmail: 'https://mail.google.com/mail/?' + (from ? 'authuser=' + e(from) + '&' : '') + 'view=cm&fs=1&to=' + e(m.to) + '&su=' + e(m.subject) + '&body=' + e(m.body),
       outlook: 'https://outlook.live.com/mail/0/deeplink/compose?to=' + e(m.to) + '&subject=' + e(m.subject) + '&body=' + e(m.body),
       mailto: 'mailto:' + m.to + '?subject=' + e(m.subject) + '&body=' + e(m.body.replace(/\r?\n/g, '\r\n'))
     };
@@ -686,7 +691,7 @@
 
   $('clearBtn').addEventListener('click', function () {
     if (!confirm('This removes the saved draw, Sent ticks and your email wording from this device.\n\nMake sure you have downloaded the master list first. Carry on?')) return;
-    [KEY.draw, KEY.subject, KEY.template, KEY.buttons].forEach(forget);
+    [KEY.draw, KEY.subject, KEY.template, KEY.buttons, KEY.from].forEach(forget);
     location.reload();
   });
 
