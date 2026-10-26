@@ -45,6 +45,7 @@
       .trim()
       .replace(/^the /, '');
   }
+  function accountKey(ig) { return norm(ig).replace(/^@/, ''); }
 
   var countryLookup = {};
   COUNTRIES.forEach(function (c) {
@@ -80,8 +81,28 @@
       if (g) { g.members.forEach(function (m) { set[m] = true; }); return; }
       result.unknown.push(term);
     });
-    result.countries = Object.keys(set);
+    result.countries = Object.keys(set).sort();
     return result;
+  }
+
+  /* Works out each entry's account, and whether the account has several entries.
+     Each person needs .ig, .country and .sendToText. Adds .account, .any, .allowed, .multi */
+  function prepare(people) {
+    var count = {};
+    people.forEach(function (p) {
+      p.account = accountKey(p.ig);
+      var st = parseSendTo(p.sendToText);
+      p.any = st.any;
+      p.allowed = st.countries;
+      count[p.account] = (count[p.account] || 0) + 1;
+    });
+    people.forEach(function (p) { p.multi = count[p.account] > 1; });
+    return people;
+  }
+
+  /* "westiedog – Isla (Canada)" when the account has several entries, else "westiedog (Canada)" */
+  function label(p, withCountry) {
+    return p.ig + (p.multi ? ' – ' + p.dog : '') + (withCountry === false ? '' : ' (' + p.country + ')');
   }
 
   /* ------------------------------------------------------------------
@@ -136,7 +157,7 @@
     });
     if (errors.length) return { people: people, errors: errors, warnings: warnings };
 
-    var seenIg = {}, seenEmail = {};
+    var seenEntry = {}, firstOfAccount = {}, emailAccount = {};
     for (var i = headRow + 1; i < rows.length; i++) {
       var row = rows[i] || [];
       var p = {
@@ -149,7 +170,7 @@
         email: cell(row[map.email])
       };
       if (!p.ig && !p.dog && !p.address && !p.countryText && !p.sendToText && !p.email) continue; // blank row
-      var where = 'Row ' + p.row + (p.ig ? ' (' + p.ig + ')' : '') + ': ';
+      var where = 'Row ' + p.row + (p.ig ? ' (' + p.ig + (p.dog ? ' – ' + p.dog : '') + ')' : '') + ': ';
 
       if (!p.ig) errors.push(where + 'the IG Account is blank.');
       if (!p.email) errors.push(where + 'the Email Address is blank.');
@@ -162,57 +183,72 @@
       else if (!p.country) errors.push(where + 'the Country of Residence “' + p.countryText + '” isn’t on the app’s country list.');
 
       var st = parseSendTo(p.sendToText);
-      p.any = st.any;
-      p.allowed = st.countries;
       if (!p.sendToText) errors.push(where + 'Will Send To is blank (write “Any” if they’ll send anywhere).');
       st.unknown.forEach(function (u) {
         errors.push(where + 'Will Send To includes “' + u + '”, which isn’t on the app’s list.');
       });
 
       if (p.ig) {
-        var k = norm(p.ig).replace(/^@/, '');
-        if (seenIg[k]) errors.push(where + 'this IG Account also appears on row ' + seenIg[k] + '.');
-        else seenIg[k] = p.row;
-      }
-      if (p.email) {
-        var e = p.email.toLowerCase();
-        if (seenEmail[e]) warnings.push(where + 'this email address also appears on row ' + seenEmail[e] + '. That’s fine if one person runs two accounts.');
-        else seenEmail[e] = p.row;
+        var acc = accountKey(p.ig);
+        var entry = acc + '|' + norm(p.dog);
+        if (seenEntry[entry]) errors.push(where + 'this account and dog also appear on row ' + seenEntry[entry] + '.');
+        else seenEntry[entry] = p.row;
+
+        // Every entry for one account must have the same country and Will Send To
+        var first = firstOfAccount[acc];
+        if (!first) firstOfAccount[acc] = { row: p.row, country: p.country, countryText: p.countryText, send: st, sendToText: p.sendToText };
+        else {
+          if (p.country && first.country && p.country !== first.country) {
+            errors.push(where + 'Country of Residence is “' + p.countryText + '”, but row ' + first.row +
+              ' for the same account says “' + first.countryText + '”. All entries for one account must be the same.');
+          }
+          if (!st.unknown.length && (st.any !== first.send.any || st.countries.join('|') !== first.send.countries.join('|'))) {
+            errors.push(where + 'Will Send To is “' + p.sendToText + '”, but row ' + first.row +
+              ' for the same account says “' + first.sendToText + '”. All entries for one account must be the same.');
+          }
+        }
+        if (p.email) {
+          var e = p.email.toLowerCase();
+          if (emailAccount[e] && emailAccount[e].acc !== acc) {
+            warnings.push(where + 'this email address is also used by a different account on row ' + emailAccount[e].row +
+              '. That’s fine if one person runs both accounts, but those two accounts could be matched with each other.');
+          } else if (!emailAccount[e]) emailAccount[e] = { acc: acc, row: p.row };
+        }
       }
       people.push(p);
     }
 
-    if (people.length < 2) errors.push('At least two people are needed for a draw.');
+    if (people.length < 2) errors.push('At least two entries are needed for a draw.');
+    prepare(people);
 
-    // Warn about restricted senders whose countries have nobody in them
+    // Warn about restricted senders who have nobody they could send to
     if (!errors.length) {
-      var living = {};
-      people.forEach(function (p) { living[p.country] = (living[p.country] || 0) + 1; });
-      people.forEach(function (p) {
-        if (p.any) return;
-        var reachable = people.filter(function (q) { return q !== p && p.allowed.indexOf(q.country) !== -1; }).length;
-        if (reachable === 0) {
-          warnings.push('Row ' + p.row + ' (' + p.ig + '): will only send to ' + describeSendTo(p) +
-            ', but nobody else in the group lives there, so no match is possible for them.');
+      var warned = {};
+      people.forEach(function (p, g) {
+        if (p.any || warned[p.account]) return;
+        var reachable = people.some(function (q, r) { return canSend(people, g, r); });
+        if (!reachable) {
+          warned[p.account] = true;
+          warnings.push('Row ' + p.row + ' (' + p.ig + '): will only send to ' + p.sendToText +
+            ', but nobody from another account lives there, so no match is possible for them.');
         }
       });
     }
     return { people: people, errors: errors, warnings: warnings };
   }
 
-  function describeSendTo(p) {
-    if (p.any) return 'anywhere';
-    return p.sendToText;
-  }
-
   /* ------------------------------------------------------------------
      MATCHING
-     assign[g] = index of the person that giver g sends to.
+     assign[g] = index of the entry that entry g sends to.
+     Fixed rules: Will Send To, never to your own account, one gift each way.
+     Avoided where possible (in this order):
+       1. one account sending to the same account more than once
+       2. two accounts sending to each other (a swap)
      ------------------------------------------------------------------ */
   function canSend(people, g, r) {
-    if (g === r) return false;
-    var giver = people[g];
-    return giver.any || giver.allowed.indexOf(people[r].country) !== -1;
+    var giver = people[g], receiver = people[r];
+    if (g === r || giver.account === receiver.account) return false;
+    return giver.any || giver.allowed.indexOf(receiver.country) !== -1;
   }
 
   function shuffled(arr, rng) {
@@ -257,50 +293,100 @@
     return { matchG: matchG, matchR: matchR };
   }
 
-  function findSwaps(assign) {
-    var swaps = [];
-    for (var g = 0; g < assign.length; g++) {
-      var r = assign[g];
-      if (r > g && assign[r] === g) swaps.push([g, r]);
-    }
-    return swaps;
+  /* Lists the "avoid where possible" situations in a draw */
+  function analyse(people, assign) {
+    var links = {}, doubles = [], swaps = [];
+    assign.forEach(function (r, g) {
+      var k = people[g].account + '>' + people[r].account;
+      (links[k] = links[k] || []).push(g);
+    });
+    Object.keys(links).forEach(function (k) {
+      var gs = links[k];
+      if (gs.length > 1) doubles.push({ givers: gs, receivers: gs.map(function (g) { return assign[g]; }) });
+      var parts = k.split('>');
+      if (parts[0] < parts[1] && links[parts[1] + '>' + parts[0]]) {
+        swaps.push({ a: gs[0], b: links[parts[1] + '>' + parts[0]][0] });
+      }
+    });
+    return { doubles: doubles, swaps: swaps };
   }
 
-  /* Try to break up two-person swaps by exchanging recipients with someone else */
-  function reduceSwaps(people, assign, rng) {
-    var improved = true, guard = 0;
-    while (improved && guard++ < 500) {
-      improved = false;
-      var swaps = findSwaps(assign);
-      if (!swaps.length) return assign;
-      var before = swaps.length;
-      outer:
-      for (var s = 0; s < swaps.length; s++) {
-        var pair = swaps[s];
-        for (var side = 0; side < 2; side++) {
-          var a = pair[side];
-          var others = shuffled(assign.map(function (_, i) { return i; }), rng);
-          for (var k = 0; k < others.length; k++) {
-            var c = others[k];
-            if (c === pair[0] || c === pair[1]) continue;
-            var ra = assign[a], rc = assign[c];
-            if (canSend(people, a, rc) && canSend(people, c, ra)) {
-              assign[a] = rc; assign[c] = ra;
-              if (findSwaps(assign).length < before) { improved = true; break outer; }
-              assign[a] = ra; assign[c] = rc; // undo
-            }
-          }
-        }
+  function score(people, assign) {
+    var links = {}, dup = 0, sw = 0;
+    for (var g = 0; g < assign.length; g++) {
+      var k = people[g].account + '>' + people[assign[g]].account;
+      if (links[k]) dup++; else links[k] = 1;
+    }
+    Object.keys(links).forEach(function (k) {
+      var parts = k.split('>');
+      if (parts[0] < parts[1] && links[parts[1] + '>' + parts[0]]) sw++;
+    });
+    return dup * 1000 + sw;
+  }
+
+  /* Rearrange recipients (keeping every fixed rule) to reduce the score.
+     Keeps a count of links between accounts so each change is scored quickly. */
+  function improve(people, assign, rng, iterations, allowed) {
+    var n = assign.length, accIndex = {}, acc = [], na = 0;
+    people.forEach(function (p, i) {
+      if (accIndex[p.account] === undefined) accIndex[p.account] = na++;
+      acc[i] = accIndex[p.account];
+    });
+    var cnt = new Int32Array(na * na);
+    assign.forEach(function (r, g) { cnt[acc[g] * na + acc[r]]++; });
+    // score contribution of the pair of accounts x, y (x != y)
+    function pairScore(x, y) {
+      var xy = cnt[x * na + y], yx = cnt[y * na + x];
+      return (xy > 1 ? (xy - 1) * 1000 : 0) + (yx > 1 ? (yx - 1) * 1000 : 0) + (xy > 0 && yx > 0 ? 1 : 0);
+    }
+    function pairsOf(givers, receivers) {
+      var seen = {}, list = [];
+      for (var i = 0; i < givers.length; i++) {
+        var x = acc[givers[i]], y = acc[receivers[i]];
+        var k = x < y ? x * na + y : y * na + x;
+        if (!seen[k]) { seen[k] = true; list.push([x, y]); }
+      }
+      return list;
+    }
+    function total(pairs) { var s = 0; for (var i = 0; i < pairs.length; i++) s += pairScore(pairs[i][0], pairs[i][1]); return s; }
+    function move(givers, from, to) {
+      for (var i = 0; i < givers.length; i++) {
+        cnt[acc[givers[i]] * na + acc[from[i]]]--;
+        cnt[acc[givers[i]] * na + acc[to[i]]]++;
+        assign[givers[i]] = to[i];
       }
     }
-    return assign;
+
+    var cur = score(people, assign);
+    for (var it = 0; it < iterations && cur > 0; it++) {
+      var a = Math.floor(rng() * n), b = Math.floor(rng() * n);
+      if (a === b) continue;
+      var givers, from, to;
+      if (rng() < 0.7) {           // exchange the recipients of a and b
+        givers = [a, b]; from = [assign[a], assign[b]]; to = [assign[b], assign[a]];
+      } else {                     // rotate the recipients of three entries
+        var c = Math.floor(rng() * n);
+        if (c === a || c === b) continue;
+        givers = [a, b, c]; from = [assign[a], assign[b], assign[c]]; to = [assign[b], assign[c], assign[a]];
+      }
+      var okMove = true;
+      for (var i = 0; i < givers.length; i++) if (!allowed[givers[i]][to[i]]) { okMove = false; break; }
+      if (!okMove) continue;
+      var pairs = pairsOf(givers.concat(givers), from.concat(to));
+      var before = total(pairs);
+      move(givers, from, to);
+      var after = total(pairs);
+      if (after <= before) cur += after - before;
+      else move(givers, to, from);
+    }
+    return cur;
   }
 
-  /* Explain why no complete match exists, using the people who block it */
+  /* Explain why no complete match exists.
+     Returns [{ title, lists: [{ heading, names: [] }], action }] */
   function explainFailure(people, adj, mm) {
     var n = people.length, problems = [], seenKeys = {};
 
-    function label(i) { return people[i].ig + ' (' + people[i].country + ')'; }
     function add(kind, groupIdx, helperIdx) {
       var key = kind + ':' + groupIdx.slice().sort(function (x, y) { return x - y; }).join(',');
       if (seenKeys[key]) return;
@@ -308,7 +394,7 @@
       problems.push({ kind: kind, group: groupIdx, helpers: helperIdx, size: groupIdx.length });
     }
 
-    // Receivers nobody (or too few people) can send to
+    // Entries nobody (or too few) can send to
     for (var r0 = 0; r0 < n; r0++) {
       if (mm.matchR[r0] !== -1) continue;
       var S = [r0], inS = {}, T = [], inT = {};
@@ -324,7 +410,7 @@
       }
       add('receive', S, T);
     }
-    // Givers with too few people they're allowed to send to
+    // Senders with too few entries they're allowed to send to
     for (var g0 = 0; g0 < n; g0++) {
       if (mm.matchG[g0] !== -1) continue;
       var G = [g0], inG = {}, R = [], inR = {};
@@ -348,59 +434,75 @@
       p.group.forEach(function (i) { used[i] = true; });
       shown.push(p);
     });
-    function list(idx) {
-      var names = idx.map(label);
-      return names.length > 10 ? names.slice(0, 10).join(', ') + ' and ' + (names.length - 10) + ' others' : names.join(', ');
+    function names(idx) { return idx.map(function (i) { return label(people[i]); }); }
+    function countries(idx) {
+      var c = {};
+      idx.forEach(function (i) { c[people[i].country] = true; });
+      return Object.keys(c).sort().join(', ');
     }
-    return shown.slice(0, 5).map(function (p) {
-      var who = list(p.group);
-      var helpers = list(p.helpers);
+
+    return shown.map(function (p) {
+      var first = people[p.group[0]];
       if (p.kind === 'receive') {
         if (!p.helpers.length) {
-          return 'Nobody is able to send a gift to ' + who +
-            ': everyone else has limited where they will send. At least one person needs to change to “Any” or add ' +
-            people[p.group[0]].country + ' to their Will Send To.';
+          return {
+            title: 'Nobody is able to send a gift to ' + label(first) + '.',
+            lists: [],
+            action: 'At least one person from another account needs to change to “Any” or add ' + first.country + ' to their Will Send To.'
+          };
         }
-        return 'These ' + p.group.length + ' people can only be sent gifts by ' + p.helpers.length +
-          (p.helpers.length === 1 ? ' person' : ' people') + ', so someone would be left out.\n' +
-          'Need a Secret Santa: ' + who + '.\nThe only people allowed to send to them: ' + helpers +
-          '.\nOne more person needs to be willing to send to their country (or “Any”).';
+        return {
+          title: p.group.length + ' entries in ' + countries(p.group) + ' can only be sent gifts by ' +
+            p.helpers.length + (p.helpers.length === 1 ? ' entry' : ' entries') + ', so one would be left out.',
+          lists: [{ heading: 'Need a Secret Santa', names: names(p.group) },
+                  { heading: 'The only entries allowed to send to them', names: names(p.helpers) }],
+          action: 'One more person needs to be willing to send to ' + countries(p.group) + ' (or choose “Any”).'
+        };
       }
       if (!p.helpers.length) {
-        return who + ' will only send to ' + describeSendTo(people[p.group[0]]) +
-          ', but nobody else in the group lives there.';
+        return {
+          title: label(first) + ' will only send to ' + first.sendToText + ', but nobody from another account lives there.',
+          lists: [],
+          action: 'They need to widen their Will Send To.'
+        };
       }
-      return 'These ' + p.group.length + ' people have limited where they will send, and between them there are only ' +
-        p.helpers.length + (p.helpers.length === 1 ? ' person' : ' people') + ' they are allowed to send to.\n' +
-        'Restricted senders: ' + who + '.\nPeople they could send to: ' + helpers +
-        '.\nOne of them needs to widen their Will Send To.';
+      return {
+        title: p.group.length + ' entries have limited where they will send, and between them there are only ' +
+          p.helpers.length + (p.helpers.length === 1 ? ' entry' : ' entries') + ' they are allowed to send to.',
+        lists: [{ heading: 'Restricted senders', names: names(p.group) },
+                { heading: 'Entries they could send to', names: names(p.helpers) }],
+        action: 'One of them needs to widen their Will Send To.'
+      };
     });
   }
 
-  /* Main entry point.
-     Returns { ok, assign, swaps, forcedSwaps, attempts } or { ok:false, problems } */
-  function makeMatches(people, rng, attempts) {
+  /* Main entry point. people must have been through readParticipants (or prepare).
+     Returns { ok, assign, doubles, swaps } or { ok:false, problems } */
+  function makeMatches(people, rng, restarts) {
     rng = rng || Math.random;
-    attempts = attempts || 300;
+    restarts = restarts || 30;
     var adj = buildAdj(people);
     var n = people.length;
-    var best = null;
-    for (var t = 0; t < attempts; t++) {
+    var allowed = adj.map(function (list) {
+      var row = new Uint8Array(n);
+      list.forEach(function (r) { row[r] = 1; });
+      return row;
+    });
+    var iterations = Math.max(5000, 300 * n);
+    var best = null, bestScore = Infinity;
+    for (var t = 0; t < restarts; t++) {
       var mm = maxMatching(adj, rng);
       if (mm.matchG.indexOf(-1) !== -1) {
         // Augmenting paths find a full match whenever one exists, so this is a real impossibility
         return { ok: false, problems: explainFailure(people, adj, mm) };
       }
-      var assign = reduceSwaps(people, mm.matchG.slice(), rng);
-      var swaps = findSwaps(assign);
-      if (!best || swaps.length < best.swaps.length) best = { assign: assign, swaps: swaps };
-      if (!best.swaps.length) break;
+      var assign = mm.matchG.slice();
+      var s = improve(people, assign, rng, iterations, allowed);
+      if (s < bestScore) { best = assign; bestScore = s; }
+      if (bestScore === 0) break;
     }
-    // A swap is "forced" when each of the pair can send to nobody but the other
-    var forced = best.swaps.filter(function (pr) {
-      return adj[pr[0]].length === 1 && adj[pr[1]].length === 1;
-    });
-    return { ok: true, assign: best.assign, swaps: best.swaps, forcedSwaps: forced, attempts: t + 1, n: n };
+    var a = analyse(people, best);
+    return { ok: true, assign: best, doubles: a.doubles, swaps: a.swaps, n: n };
   }
 
   /* Independent check of a finished draw. Returns { ok, lines: [{ok, text}] } */
@@ -410,12 +512,15 @@
     var received = new Array(n).fill(0);
     if (gives) assign.forEach(function (r) { received[r]++; });
     var receivesOnce = gives && received.every(function (c) { return c === 1; });
-    var noSelf = gives && assign.every(function (r, g) { return r !== g; });
-    var badRule = [];
-    if (gives) assign.forEach(function (r, g) { if (r !== g && !canSend(people, g, r)) badRule.push(people[g].ig); });
-    lines.push({ ok: gives, text: 'Everyone (' + n + ') sends exactly one gift' });
-    lines.push({ ok: receivesOnce, text: 'Everyone receives exactly one gift' });
-    lines.push({ ok: noSelf, text: 'Nobody is sending to themselves' });
+    var ownAccount = [], badRule = [];
+    if (gives) assign.forEach(function (r, g) {
+      if (people[g].account === people[r].account) ownAccount.push(label(people[g], false));
+      else if (!canSend(people, g, r)) badRule.push(label(people[g], false));
+    });
+    lines.push({ ok: gives, text: 'Every entry (' + n + ') sends exactly one gift' });
+    lines.push({ ok: receivesOnce, text: 'Every entry receives exactly one gift' });
+    lines.push({ ok: gives && ownAccount.length === 0, text: ownAccount.length ?
+      'Sending to their own account: ' + ownAccount.join(', ') : 'Nobody is sending to their own account' });
     lines.push({ ok: gives && badRule.length === 0, text: badRule.length ?
       'Country rules broken for: ' + badRule.join(', ') : 'Every match follows the Will Send To rules' });
     return { ok: lines.every(function (l) { return l.ok; }), lines: lines };
@@ -424,7 +529,8 @@
   var api = {
     COUNTRIES: COUNTRIES, GROUPS: GROUPS, FIELDS: FIELDS,
     canonicalCountry: canonicalCountry, parseSendTo: parseSendTo, readParticipants: readParticipants,
-    canSend: canSend, makeMatches: makeMatches, verify: verify, findSwaps: findSwaps
+    prepare: prepare, label: label, accountKey: accountKey,
+    canSend: canSend, makeMatches: makeMatches, verify: verify, analyse: analyse, score: score
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.SSP = api;

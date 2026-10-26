@@ -116,6 +116,36 @@ IG Account | Dog's Name | Address | Country of Residence | Will Send To | Email 
 - Hand-over between organiser and back-up admin is via the downloaded master list (Sent ticks are only remembered on the device where they were made).
 - Publish with GitHub Pages; test on Kathryn's Zorin PC and Samsung phone; trial run with 2–3 volunteers.
 
+## 7b. Update 26/10/2026: feedback from first trial
+
+**Organiser:** Apple Mac + Gmail. **Back-up admin (Kathryn):** Zorin Linux + Gmail (Firefox), Samsung phone (Chrome + Gmail app).
+
+### Decisions
+- **One entry per dog is allowed.** One row per dog, with the real IG Account repeated on each row.
+  - Each row is a separate entry and gets its own email ("Dear <dog>", dog's name in the subject).
+  - All rows for one account must have the **same Country of Residence and Will Send To** (the app refuses otherwise).
+- **Order of rules:**
+  1. Never broken: Will Send To; never send to your own account (even a different dog); every entry sends one and receives one.
+  2. Avoided unless there is no other way: one account sending to the same account more than once.
+  3. Then avoided unless there is no other way: two accounts being each other's Secret Santa.
+- **Rules text** now says the maximum is per entry (Kathryn's wording, with "then this amount that is shared" tidied to "then this amount is shared").
+- **No logo in the email** (Gmail links can only carry plain text; a signature was too fiddly). Kathryn will tell the group the sender and subject in advance.
+
+### Changes made (version 2)
+- New marker `<Your Dog's Name>` (the email recipient's dog), used in "Dear ...," and the subject line.
+- Master list now has a "Giver Dog's Name" column; reload matches on account + dog.
+- "Save progress" button in step 5 plus a reminder after every 10 new ticks; downloaded file names include the time.
+- Gmail button reuses one browser tab.
+- Impossible-draw explanation: summary line with number of problems; name lists folded behind "Show who is involved".
+- Trial instructions corrected (Find & Replace "Entire cells"; Iceland example) and a Mac section added.
+- Test spreadsheet now has multi-dog accounts and deliberately awkward Canada and Iceland groups.
+- Tested: 2,500 small random groups against every possible arrangement (always found the best one); 100 realistic 100-entry draws (worst about 1 second).
+
+### Still to do
+- Kathryn to re-test; then share the trial with the organiser.
+- Publish with GitHub Pages; test on phone (Chrome + Gmail app) and on the organiser's Mac.
+- Fill in spending limits; trial run with 2-3 volunteers using real emails.
+
 ## 8. Original build steps
 
 1. Create the page (`index.html`, one file) plus `header.jpg`, and a **made-up test spreadsheet** of 80 accounts, some with "Dog & Dog" entries.
