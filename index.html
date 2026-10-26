@@ -608,13 +608,19 @@
      ------------------------------------------------------------------ */
   $('subject').value = load(KEY.subject, DEFAULT_SUBJECT);
   $('template').value = load(KEY.template, DEFAULT_TEMPLATE);
-  $('subject').addEventListener('input', function () { save(KEY.subject, this.value); renderPreview(); });
-  $('template').addEventListener('input', function () { save(KEY.template, this.value); renderPreview(); });
+  var relinkTimer;
+  function wordingChanged() {
+    save(KEY.subject, $('subject').value); save(KEY.template, $('template').value);
+    renderPreview();
+    clearTimeout(relinkTimer); relinkTimer = setTimeout(renderSendList, 400);  // keep the buttons' links up to date too
+  }
+  $('subject').addEventListener('input', wordingChanged);
+  $('template').addEventListener('input', wordingChanged);
   $('resetTemplate').addEventListener('click', function () {
     if (!confirm('Replace your edits with the original wording?')) return;
     $('subject').value = DEFAULT_SUBJECT; $('template').value = DEFAULT_TEMPLATE;
     save(KEY.subject, DEFAULT_SUBJECT); save(KEY.template, DEFAULT_TEMPLATE);
-    renderPreview();
+    renderPreview(); renderSendList();
   });
 
   function fill(text, a, b) {
@@ -678,9 +684,9 @@
       if (q && (a.ig + ' ' + a.dog + ' ' + a.email + ' ' + b.ig + ' ' + b.dog).toLowerCase().indexOf(q) === -1) return;
       var m = messageFor(g), l = links(m), btns = '';
       // Gmail and Outlook.com reuse one named tab, so each message replaces the last
-      if (buttons.indexOf('gmail') !== -1) btns += '<a class="btn small" target="santapaws-gmail" href="' + esc(l.gmail) + '">Gmail</a>';
-      if (buttons.indexOf('outlook') !== -1) btns += '<a class="btn small" target="santapaws-outlook" href="' + esc(l.outlook) + '">Outlook.com</a>';
-      if (buttons.indexOf('mailto') !== -1) btns += '<a class="btn small" href="' + esc(l.mailto) + '">Email app</a>';
+      if (buttons.indexOf('gmail') !== -1) btns += '<a class="btn small" data-g="' + g + '" data-link="gmail" target="santapaws-gmail" href="' + esc(l.gmail) + '">Gmail</a>';
+      if (buttons.indexOf('outlook') !== -1) btns += '<a class="btn small" data-g="' + g + '" data-link="outlook" target="santapaws-outlook" href="' + esc(l.outlook) + '">Outlook.com</a>';
+      if (buttons.indexOf('mailto') !== -1) btns += '<a class="btn small" data-g="' + g + '" data-link="mailto" href="' + esc(l.mailto) + '">Email app</a>';
       if (buttons.indexOf('copy') !== -1) btns += '<button class="btn plain small" data-copy="' + g + '">Copy</button>';
       html += '<div class="person' + (d.sent[g] ? ' sent' : '') + '">' +
         '<div class="top"><div><div class="who">' + esc(a.ig) + ' <span style="font-weight:700">(' + esc(a.dog) + ')</span></div><div class="email">' + esc(a.email) + '</div></div>' +
@@ -709,7 +715,17 @@
       notes('warn', 'Time to save your progress', ['You’ve ticked ' + since + ' since you last downloaded the master list. Press “Save progress” so your back-up includes them.']) : '';
   }
 
+  /* Build each email at the moment its button is used, so it always has the latest wording */
+  function refreshLink(ev) {
+    var a = ev.target.closest('[data-link]');
+    if (a) a.href = links(messageFor(+a.getAttribute('data-g')))[a.getAttribute('data-link')];
+  }
+  $('sendList').addEventListener('mousedown', refreshLink);
+  $('sendList').addEventListener('touchstart', refreshLink, { passive: true });
+  $('sendList').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') refreshLink(ev); });
+
   $('sendList').addEventListener('click', function (ev) {
+    refreshLink(ev);
     var btn = ev.target.closest('[data-copy]');
     if (!btn) return;
     var m = messageFor(+btn.getAttribute('data-copy'));

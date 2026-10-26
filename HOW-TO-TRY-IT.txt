@@ -1,6 +1,6 @@
 SECRET SANTA PAWS - TRIAL RUN
 =============================
-Version 2, 26/10/2026
+Version 2.1, 26/10/2026
 
 Everything here runs on your own computer. Nothing is uploaded or
 published, and no email is sent unless you press Send inside Gmail.
