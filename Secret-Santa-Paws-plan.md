@@ -1,6 +1,6 @@
 # Secret Santa Paws – project plan
 
-*Saved: 25/10/2026. Status: **first working version built and tested** (index.html, matching.js). Organiser has agreed to the build. Not yet published or shared.*
+*Last updated: 26/10/2026. Status: **version 3 published and tested; parked** while the organiser tries it.*
 
 **To resume:** start a new chat, attach this file and the header picture, and say "Please carry on with the Secret Santa Paws build from this plan."
 
@@ -147,6 +147,23 @@ IG Account | Dog's Name | Address | Country of Residence | Will Send To | Email 
 - Phone test (Samsung, Chrome): **"Email app" works** (opens the Gmail app with the email filled in); **"Gmail" doesn't** (Gmail's mobile site only shows the inbox). The app now defaults to Email app + Copy on phones/tablets and Gmail + Copy on computers, with a reminder note; instructions updated (version 3, web link based).
 - Test on the organiser's Mac.
 - Fill in spending limits; trial run with 2-3 volunteers using real emails.
+
+## 7c. Parked 26/10/2026
+
+- Live at **https://spr1ngw1ll0wtr33.github.io/SecretSantaPaws/** (GitHub Pages from `main`; `first-build` is identical).
+- Kathryn has sent the organiser the app address, `test-dummy.xlsx` and `HOW-TO-TRY-IT.txt` (version 3).
+- The organiser keeps the participant list in a shared **Google Sheet** ("Gift exchange 2026"; Kathryn added a "Test Spreadsheet" tab).
+  - Before the draw, the organiser downloads a final .xlsx to their computer and uses only that file with the app.
+  - **The app reads only the first tab** of a file. Put the wanted tab first, or use right-click tab → Copy to → New spreadsheet, and download that.
+  - Real data in Google Drive: share with named people only, not "Anyone with the link".
+- Everyone to skim each email before pressing Send.
+
+### When resuming
+- Organiser's feedback on the trial (Mac + Gmail).
+- Spending limits for £, $, € and other currencies (best typed into the default wording in `index.html`, so they don't depend on browser storage).
+- Trial with 2–3 volunteers using real email addresses.
+- Any new countries go in `COUNTRIES` at the top of `matching.js`.
+- Possible later improvement, not wanted for now: let the app choose the right tab itself.
 
 ## 8. Original build steps
 
