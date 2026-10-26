@@ -143,7 +143,9 @@ IG Account | Dog's Name | Address | Country of Residence | Will Send To | Email 
 
 ### Still to do
 - Kathryn to re-test; then share the trial with the organiser.
-- Publish with GitHub Pages; test on phone (Chrome + Gmail app) and on the organiser's Mac.
+- Published 26/10/2026 at https://spr1ngw1ll0wtr33.github.io/SecretSantaPaws/ (GitHub Pages, main branch).
+- Phone test (Samsung, Chrome): **"Email app" works** (opens the Gmail app with the email filled in); **"Gmail" doesn't** (Gmail's mobile site only shows the inbox). The app now defaults to Email app + Copy on phones/tablets and Gmail + Copy on computers, with a reminder note; instructions updated (version 3, web link based).
+- Test on the organiser's Mac.
 - Fill in spending limits; trial run with 2-3 volunteers using real emails.
 
 ## 8. Original build steps

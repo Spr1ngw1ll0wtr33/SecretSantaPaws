@@ -1,53 +1,69 @@
 SECRET SANTA PAWS - TRIAL RUN
 =============================
-Version 2.1, 26/10/2026
+Version 3, 26/10/2026
 
-Everything here runs on your own computer. Nothing is uploaded or
-published, and no email is sent unless you press Send inside Gmail.
-The test spreadsheet has 78 made-up entries from 72 made-up accounts
-(some accounts have entered two dogs). The email addresses end in
-@example.com, which don't belong to anyone.
-
-
-PART A - UNPACK THE FILES (once)
---------------------------------
-On a Linux PC (e.g. Zorin):
- 1. Open the Files app and go to your Downloads folder.
- 2. Right-click "Secret-Santa-Paws-trial.zip" and choose "Extract Here".
-
-On an Apple Mac:
- 1. Open Finder and go to your Downloads folder.
- 2. Double-click "Secret-Santa-Paws-trial.zip". The Mac unpacks it.
-
-Either way, a folder called "Secret-Santa-Paws-trial" appears. Open it.
-You should see 6 files:
-     index.html          - the app itself
-     matching.js         - the matching rules
-     xlsx.full.min.js    - reads and writes spreadsheets
-     header.jpg          - the Secret Santa Paws picture
-     test-dummy.xlsx     - the made-up test spreadsheet
-     HOW-TO-TRY-IT.txt   - these instructions
-Keep all of these files together in the same folder.
+The app is a web page. Your spreadsheet is read on your own device:
+it is never uploaded anywhere, and no email is sent unless you press
+Send yourself. The test spreadsheet has 78 made-up entries from 72
+made-up accounts (some accounts have entered two dogs). The email
+addresses end in @example.com, which don't belong to anyone.
 
 
-PART B - OPEN THE APP
----------------------
- 3. Double-click "index.html". It opens in your web browser
-    (Firefox on Zorin, Safari on a Mac, unless you've changed it).
-    If it opens in something else, right-click it, choose
-    "Open With" and pick your web browser.
- 4. You should see the dog picture, "Secret Santa Paws", and
-    step 1 "Load the spreadsheet".
+PART A - OPEN THE APP AND GET THE TEST SPREADSHEET
+--------------------------------------------------
+ 1. Open this address in your web browser (Chrome, Safari, Firefox
+    or Edge), on a computer, phone or tablet:
+
+      https://spr1ngw1ll0wtr33.github.io/SecretSantaPaws/
+
+    You should see the dog picture, "Secret Santa Paws", and step 1
+    "Load the spreadsheet". It's worth bookmarking.
+    (On a phone, don't use "Install" or "Add to Home screen" -
+    it's a web page, not an app to install. A bookmark is enough.)
+
+ 2. Download the made-up test spreadsheet by opening this link:
+
+      https://github.com/Spr1ngw1ll0wtr33/SecretSantaPaws/raw/main/test-dummy.xlsx
+
+    It goes into your Downloads folder.
+
+(Alternative without the internet: if you have the zip file
+"Secret-Santa-Paws-trial", unpack it - right-click and "Extract Here"
+on Linux, or double-click on a Mac - and double-click "index.html".
+The test spreadsheet is in the same folder.)
+
+
+PART B - WHICH SEND BUTTON TO USE
+---------------------------------
+In step 5 each person has send buttons. Which one works depends on
+the device:
+
+  ON A COMPUTER (Mac, Windows or Linux):  use "Gmail".
+    It opens Gmail in a browser tab with the email filled in.
+    You need to be logged in to Gmail in that browser.
+
+  ON A PHONE OR TABLET:  use "Email app".
+    It opens the Gmail app with the email filled in.
+    (The "Gmail" button does NOT work on a phone - it just shows
+    your inbox, without the email.)
+
+The app ticks the right button for the device it's on. You can
+change which buttons show with the tick boxes under "Show these
+buttons". "Copy" works everywhere as a fall-back: it copies the
+address, subject and message so you can paste them into any email.
+
+ALWAYS skim the email before pressing Send, to check the amounts,
+the dog's name and the address are right.
 
 
 PART C - TRY IT
 ---------------
- 5. Step 1: click "Choose spreadsheet" and pick "test-dummy.xlsx"
-    from the Secret-Santa-Paws-trial folder.
+ 3. Step 1: tap or click "Choose spreadsheet" and pick
+    "test-dummy.xlsx" from your Downloads.
     You should see a green box: "78 entries from 72 accounts".
- 6. Click "Which countries and choices does the app understand?"
+ 4. Click "Which countries and choices does the app understand?"
     to see the country list.
- 7. Step 2: click "Make the matches".
+ 5. Step 2: click "Make the matches".
     You should see a green "Checked and correct" box with 4 ticks.
     You should ALSO see an amber box, because the test sheet has
     been set up to include two awkward situations on purpose:
@@ -57,36 +73,38 @@ PART C - TRY IT
         as each other's Secret Santa. There's no way round it.
       - the two Iceland accounts both say "Iceland only", so they
         have to be each other's Secret Santa.
- 8. Step 3: click "Download master list". A spreadsheet called
+ 6. Step 3: click "Download master list". A spreadsheet called
     "Secret-Santa-Paws-master-list-(date)-(time).xlsx" goes into
     your Downloads folder. Open it to look at it.
- 9. Step 4: look at the email wording and the preview. It should
+ 7. Step 4: look at the email wording and the preview. It should
     start "Dear (dog's name)," and the subject line should include
     the dog's name too. Try changing "£TBA" to an amount. The
     preview should change as well.
-10. Step 5: tick "Sent" for 10 people. The counter and green bar
+ 8. Step 5: tick "Sent" for 10 people. The counter and green bar
     should move, and after the 10th tick an amber "Time to save
     your progress" box appears.
-11. Click "Save progress". A new master list downloads (with the
+ 9. Click "Save progress". A new master list downloads (with the
     ticks in its Sent column) and the amber box disappears.
+10. SEND BUTTON (safe): press the send button for any person -
+    "Gmail" on a computer, "Email app" on a phone (see Part B).
+    A new email opens with the message filled in. Check your
+    changed amount from step 7 is in it. DON'T press Send (the
+    address is made up) - discard the draft instead.
+    On a computer, press "Gmail" for a second person: it should
+    reuse the same browser tab.
 
-Optional extra tests:
-12. GMAIL BUTTON (safe): click "Gmail" on any person. A Gmail
-    "New message" window opens with the message filled in.
-    DON'T press Send (the address is made up). Close the draft and
-    delete it from Gmail's Drafts. Then click "Gmail" for a second
-    person: it should reuse the same browser tab.
-13. RELOAD TEST: at the bottom, click "Clear everything saved on
+Optional extra tests (easiest on a computer):
+11. RELOAD TEST: at the bottom, click "Clear everything saved on
     this device" and confirm. Then in step 1 click "Reload a saved
-    master list" and choose the master list from step 11. The same
+    master list" and choose the master list from step 9. The same
     matches should come back, with your 10 ticks.
-14. ERROR TEST: open test-dummy.xlsx in your spreadsheet program,
+12. ERROR TEST: open test-dummy.xlsx in your spreadsheet program,
     make a deliberate mistake (e.g. type "Untied Kingdom" as a
     country, delete an email address, or give one of a two-dog
     account's rows a different Will Send To), use "Save As" to save
     it under a new name as an .xlsx file, then load that file in
     step 1. You should get a red box naming the row.
-15. IMPOSSIBLE TEST: open test-dummy.xlsx in your spreadsheet
+13. IMPOSSIBLE TEST: open test-dummy.xlsx in your spreadsheet
     program. Open Find & Replace (Ctrl+H on Linux, Cmd+F then
     "Replace" in Numbers on a Mac). Find "Any", replace with "UK",
     and switch ON the option "Entire cells" (in LibreOffice it's
@@ -103,10 +121,9 @@ Please note, step by step:
   - anything that didn't happen as described above
     (a screenshot helps)
   - anything confusing or badly worded
-  - the computer and browser you used
+  - the computer or phone, and the browser, you used
 
-When finished, you can delete the whole Secret-Santa-Paws-trial
-folder. To clear the saved test draw first, use the "Clear
+To clear the saved test draw when you've finished, use the "Clear
 everything saved on this device" button at the bottom of the app.
 
 NOTE: if the app doesn't remember your ticks after closing the

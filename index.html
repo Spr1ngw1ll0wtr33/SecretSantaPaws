@@ -289,7 +289,10 @@
       <label><input type="checkbox" value="mailto"> Email app</label>
       <label><input type="checkbox" value="copy"> Copy</label>
     </div>
-    <p class="hint">Gmail and Outlook.com open in a new browser tab, so you need to be logged in to them. "Email app" opens the email program on this device. "Copy" copies the address, subject and message so you can paste them anywhere.</p>
+    <div class="note warn" style="margin-top:4px"><b>On a phone or tablet, use &ldquo;Email app&rdquo;.</b> It opens the Gmail app with the email filled in.
+      The &ldquo;Gmail&rdquo; button only works on a computer &ndash; on a phone it just shows your inbox.
+      The app ticks the right one for this device, but you can change the ticks.</div>
+    <p class="hint">Gmail and Outlook.com open in a browser tab, so you need to be logged in to them. "Email app" opens the email program on this device. "Copy" copies the address, subject and message so you can paste them anywhere.</p>
     <label class="lbl" for="fromGmail">Send from this Gmail address (optional)</label>
     <input type="text" id="fromGmail" inputmode="email" autocomplete="email" placeholder="e.g. organiser@gmail.com">
     <p class="hint">Only needed if more than one Google account is signed in on this browser. It makes the Gmail button open the right one. Always check the &ldquo;From&rdquo; line before pressing Send.</p>
@@ -644,7 +647,10 @@
   /* ------------------------------------------------------------------
      Step 5: sending
      ------------------------------------------------------------------ */
-  var buttons = load(KEY.buttons, ['gmail', 'copy']);
+  // Gmail's website ignores pre-filled emails on phones, so phones and tablets default to the email app
+  var isPhoneOrTablet = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);  // iPads that report themselves as a Mac
+  var buttons = load(KEY.buttons, isPhoneOrTablet ? ['mailto', 'copy'] : ['gmail', 'copy']);
   $('fromGmail').value = load(KEY.from, '');
   $('fromGmail').addEventListener('input', function () { save(KEY.from, this.value.trim()); renderSendList(); });
   Array.prototype.forEach.call($('sendOpts').querySelectorAll('input'), function (cb) {
