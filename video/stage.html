@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Secret Santa Paws video stage</title>
+<!-- Used only to make the explainer video: frames the real app in a Mac-style window with captions. -->
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  body {
+    font-family: 'Nunito', sans-serif; color: #1f1a17;
+    background: linear-gradient(160deg, #dfe9ef 0%, #c9d9e3 55%, #b9ccd8 100%);
+  }
+  /* Mac-style browser window */
+  #win {
+    position: absolute; left: 150px; top: 28px; width: 1620px; height: 790px;
+    background: #fff; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 30px 70px rgba(30, 50, 70, .35), 0 0 0 1px rgba(0,0,0,.12);
+  }
+  #bar {
+    height: 56px; background: #f1f1f3; border-bottom: 1px solid #d6d6da;
+    display: flex; align-items: center; padding: 0 18px; gap: 10px;
+  }
+  .light { width: 14px; height: 14px; border-radius: 50%; }
+  #url {
+    margin-left: 120px; flex: 0 1 820px; height: 34px; background: #e3e3e7; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font: 600 17px -apple-system, 'Helvetica Neue', 'Nunito', sans-serif; color: #3a3a3f;
+  }
+  #content { position: absolute; top: 56px; left: 0; right: 0; bottom: 0; overflow: hidden; background: #f7fbfd; }
+  #app { border: 0; width: 1350px; height: 612px; transform: scale(1.2); transform-origin: 0 0; }
+
+  /* Caption panel */
+  #cap {
+    position: absolute; left: 150px; right: 150px; top: 845px; height: 205px;
+    background: #fffdf8; border: 4px solid #1f1a17; border-radius: 22px;
+    box-shadow: 6px 6px 0 #1f1a17; padding: 22px 34px 0 34px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  #cap::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 14px; border-radius: 18px 18px 0 0;
+    background: repeating-linear-gradient(135deg, transparent 0 7px, rgba(255,255,255,.85) 7px 11px, transparent 11px 18px), #b3312b;
+    border-bottom: 3px solid #1f1a17;
+  }
+  #capInner { transition: none; }
+  #step { display: inline-block; font-weight: 800; font-size: 22px; letter-spacing: .5px; color: #fff; background: #2e6b3c;
+          border: 3px solid #1f1a17; border-radius: 999px; padding: 2px 16px; margin-bottom: 8px; }
+  #step:empty { display: none; }
+  #text { font-size: 38px; line-height: 1.32; font-weight: 700; }
+  #text b { color: #b3312b; }
+
+  /* Pointer and highlight */
+  #hl { position: absolute; border: 5px solid #d79f2a; border-radius: 16px; box-shadow: 0 0 0 6px rgba(215,159,42,.28); display: none; pointer-events: none; }
+  #cursor { position: absolute; width: 34px; height: 46px; pointer-events: none; display: none; z-index: 50; filter: drop-shadow(1px 2px 2px rgba(0,0,0,.35)); }
+  #ripple { position: absolute; border: 4px solid #b3312b; border-radius: 50%; display: none; pointer-events: none; z-index: 49; }
+
+  /* Full-screen cards (title, overview, summary) */
+  .card {
+    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    background-color: #f7fbfd;
+    background-image: radial-gradient(circle, #c9dbe6 3px, transparent 3.5px), radial-gradient(circle, #c9dbe6 2px, transparent 2.5px);
+    background-size: 110px 110px, 70px 70px; background-position: 0 0, 33px 41px;
+    z-index: 60;
+  }
+  .panel {
+    background: #fff; border: 5px solid #1f1a17; border-radius: 28px; box-shadow: 8px 8px 0 #1f1a17;
+    padding: 50px 70px; position: relative; overflow: hidden;
+  }
+  .panel::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 18px;
+    background: repeating-linear-gradient(135deg, transparent 0 8px, rgba(255,255,255,.85) 8px 12px, transparent 12px 20px), #b3312b;
+    border-bottom: 4px solid #1f1a17;
+  }
+  .panel.green::before { background: repeating-linear-gradient(135deg, transparent 0 8px, rgba(255,255,255,.85) 8px 12px, transparent 12px 20px), #2e6b3c; }
+  .xmas { font-family: 'Mountains of Christmas', cursive; color: #b3312b; margin: 0; }
+  .card h2 { font-size: 54px; margin: 10px 0 26px; }
+  .card ol { font-size: 40px; line-height: 1.55; margin: 0; padding-left: 60px; }
+  .card ol li::marker { font-weight: 800; color: #2e6b3c; }
+  .card p { font-size: 34px; margin: 22px 0 0; }
+  .note { font-size: 30px; color: #2e6b3c; font-weight: 800; }
+
+  /* Mac-style file picker illustration */
+  #picker {
+    position: absolute; left: 520px; top: 150px; width: 880px; z-index: 40; display: none;
+    background: #f6f6f8; border-radius: 14px; box-shadow: 0 25px 60px rgba(0,0,0,.35), 0 0 0 1px rgba(0,0,0,.15);
+    font: 22px -apple-system, 'Helvetica Neue', 'Nunito', sans-serif; overflow: hidden;
+  }
+  #picker .ph { background: #ececef; padding: 14px 20px; font-weight: 700; border-bottom: 1px solid #d4d4d8; text-align: center; }
+  #picker .pb { display: flex; height: 340px; }
+  #picker .side { width: 230px; background: #e9e9ee; padding: 18px; border-right: 1px solid #d4d4d8; color: #555; line-height: 2; }
+  #picker .side .sel { background: #cfd6e6; border-radius: 8px; padding: 0 10px; margin: 0 -10px; color: #1f1a17; font-weight: 700; }
+  #picker .files { flex: 1; padding: 14px 18px; line-height: 2.1; }
+  #picker .file { padding: 0 12px; border-radius: 8px; }
+  #picker .file.sel { background: #2f6fd6; color: #fff; }
+  #picker .pf { display: flex; justify-content: flex-end; gap: 14px; padding: 14px 20px; border-top: 1px solid #d4d4d8; }
+  #picker .btn { padding: 6px 26px; border-radius: 8px; background: #fff; border: 1px solid #c4c4c8; }
+  #picker .btn.go { background: #2f6fd6; color: #fff; border-color: #2f6fd6; }
+
+  /* Simplified Gmail "New Message" illustration */
+  #gmail {
+    position: absolute; left: 330px; top: 70px; width: 1260px; height: 720px; z-index: 40; display: none;
+    background: #fff; border-radius: 16px 16px 6px 6px; overflow: hidden;
+    box-shadow: 0 25px 70px rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.15);
+    font-family: Arial, 'Liberation Sans', sans-serif; color: #202124;
+  }
+  #gmail .gh { background: #f2f6fc; padding: 14px 22px; font-size: 22px; font-weight: 700; display: flex; justify-content: space-between; }
+  #gmail .row { border-bottom: 1px solid #e3e3e3; margin: 0 22px; padding: 12px 0; font-size: 22px; }
+  #gmail .row span { color: #5f6368; margin-right: 14px; }
+  #gmail .body { margin: 0 22px; padding: 14px 0; font-size: 20px; line-height: 1.45; white-space: pre-wrap; height: 470px; overflow: hidden; }
+  #gmail .gf { position: absolute; left: 22px; bottom: 18px; display: flex; align-items: center; gap: 18px; }
+  #gmail .send { background: #0b57d0; color: #fff; font-weight: 700; font-size: 22px; padding: 12px 34px; border-radius: 999px; }
+  #gmail .tag { position: absolute; right: 22px; bottom: 26px; font-size: 18px; color: #5f6368; font-style: italic; }
+
+  /* Download notice */
+  #dl {
+    position: absolute; right: 175px; top: 100px; width: 560px; z-index: 45; display: none;
+    background: #fff; border-radius: 14px; padding: 18px 22px; display: none; gap: 16px; align-items: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,.3), 0 0 0 1px rgba(0,0,0,.12); font: 21px -apple-system, 'Helvetica Neue', 'Nunito', sans-serif;
+  }
+  #dl .ic { width: 54px; height: 64px; border-radius: 6px; background: #1d7044; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; flex: none; font-size: 18px; }
+</style>
+</head>
+<body>
+  <div id="win">
+    <div id="bar">
+      <div class="light" style="background:#ff5f57"></div>
+      <div class="light" style="background:#febc2e"></div>
+      <div class="light" style="background:#28c840"></div>
+      <div id="url">&#128274;&#xFE0E; spr1ngw1ll0wtr33.github.io/SecretSantaPaws</div>
+    </div>
+    <div id="content"><iframe id="app" src="../index.html"></iframe></div>
+  </div>
+
+  <div id="cap"><div id="capInner"><div id="step"></div><div id="text"></div></div></div>
+  <div id="hl"></div>
+  <div id="ripple"></div>
+  <svg id="cursor" viewBox="0 0 24 32"><path d="M2 2 L2 26 L8.5 20 L13 30 L17 28.2 L12.6 18.6 L21 18.6 Z" fill="#fff" stroke="#111" stroke-width="2" stroke-linejoin="round"/></svg>
+
+  <div id="picker">
+    <div class="ph">Choose a file</div>
+    <div class="pb">
+      <div class="side">Desktop<br>Documents<br><div class="sel">Downloads</div>Pictures</div>
+      <div class="files">
+        <div class="file">Holiday photos</div>
+        <div class="file">Recipes.pdf</div>
+        <div class="file sel" id="pickFile">test-dummy.xlsx</div>
+      </div>
+    </div>
+    <div class="pf"><div class="btn">Cancel</div><div class="btn go" id="pickOpen">Open</div></div>
+  </div>
+
+  <div id="gmail">
+    <div class="gh"><span>New Message</span><span style="color:#5f6368">&#8211; &nbsp;&#9633; &nbsp;&#10005;</span></div>
+    <div class="row"><span>To</span><b id="gTo"></b></div>
+    <div class="row"><span>Subject</span><b id="gSu"></b></div>
+    <div class="body" id="gBody"></div>
+    <div class="gf"><div class="send" id="gSend">Send</div></div>
+    <div class="tag">Simplified picture of Gmail&rsquo;s New Message window</div>
+  </div>
+
+  <div id="dl"><div class="ic">XLSX</div><div><b id="dlName"></b><br><span style="color:#555">Saved to your Downloads folder</span></div></div>
+
+  <div class="card" id="cardTitle">
+    <div style="text-align:center">
+      <div class="panel" style="display:inline-block;padding:14px;border-radius:30px"><img src="../header.jpg" style="width:400px;display:block;border-radius:20px"></div>
+      <h1 class="xmas" style="font-size:110px;margin-top:24px">Secret Santa Paws</h1>
+      <p style="font-size:44px;font-weight:800;margin:6px 0 0">How the app works</p>
+      <p style="font-size:30px;color:#5b524b;margin-top:14px">A calm walk-through. Pause at any time.</p>
+    </div>
+  </div>
+
+  <div class="card" id="cardSteps">
+    <div class="panel green" style="width:1400px">
+      <h2>The whole job is 5 steps, from top to bottom of the page</h2>
+      <ol>
+        <li><b>Load</b> the spreadsheet</li>
+        <li><b>Make</b> the matches</li>
+        <li><b>Download</b> the master list (your back-up)</li>
+        <li><b>Check</b> the email wording</li>
+        <li><b>Send</b> each email, and tick it off</li>
+      </ol>
+      <p class="note">&#128274;&#xFE0E; Everything happens on your own computer. Nothing is uploaded.</p>
+    </div>
+  </div>
+
+  <div class="card" id="cardBefore">
+    <div class="panel" style="width:1400px">
+      <h2>Before you start, you need:</h2>
+      <ol>
+        <li>The final spreadsheet, <b>downloaded as an Excel file</b> (.xlsx) to your Mac, with the list on the <b>first tab</b></li>
+        <li>To be <b>logged in to Gmail</b> in your web browser</li>
+        <li>Plenty of time &ndash; but you can stop and carry on later</li>
+      </ol>
+      <p>In this video we use the made-up test spreadsheet.</p>
+    </div>
+  </div>
+
+  <div class="card" id="cardRecap">
+    <div class="panel green" style="width:1450px">
+      <h2>Recap</h2>
+      <ol>
+        <li><b>Load</b> the spreadsheet &ndash; look for the green box</li>
+        <li><b>Make</b> the matches &ndash; look for the four green ticks</li>
+        <li><b>Download</b> the master list &ndash; before sending anything</li>
+        <li><b>Check</b> the wording &ndash; fill in the spending limits</li>
+        <li>For each card: <b>Gmail &rarr; check &rarr; Send &rarr; tick Sent</b>. Save progress every 10.</li>
+      </ol>
+      <p>If anything looks wrong, <b>stop and ask</b> before sending. Nothing is sent until you press Send in Gmail.</p>
+    </div>
+  </div>
+
+  <div class="card" id="cardEnd">
+    <div style="text-align:center">
+      <h1 class="xmas" style="font-size:120px">Happy gifting!</h1>
+      <p style="font-size:40px;font-weight:800;margin-top:10px">&#128062;&#xFE0E; Secret Santa Paws &#128062;&#xFE0E;</p>
+      <p style="font-size:28px;color:#5b524b;margin-top:22px">The app: spr1ngw1ll0wtr33.github.io/SecretSantaPaws</p>
+    </div>
+  </div>
+
+<script>
+  // Small helpers the video maker calls
+  var S = window.S = {};
+  var app = document.getElementById('app');
+  var SCALE = 1.2, OX = 150, OY = 28 + 56;
+  function $(id) { return document.getElementById(id); }
+  S.doc = function () { return app.contentDocument; };
+  S.win = function () { return app.contentWindow; };
+  S.caption = function (text, step) { $('text').innerHTML = text; $('step').textContent = step || ''; };
+  S.captionOpacity = function (o) { $('capInner').style.opacity = o; };
+  S.card = function (id, o) {
+    ['cardTitle', 'cardSteps', 'cardBefore', 'cardRecap', 'cardEnd'].forEach(function (c) { $(c).style.display = 'none'; });
+    if (id) { $(id).style.display = 'flex'; $(id).style.opacity = o; }
+  };
+  S.rect = function (sel) {      // element position in video coordinates
+    var el = typeof sel === 'string' ? S.doc().querySelector(sel) : sel;
+    var r = el.getBoundingClientRect();
+    return { x: OX + r.left * SCALE, y: OY + r.top * SCALE, w: r.width * SCALE, h: r.height * SCALE };
+  };
+  S.stageRect = function (id) { var r = $(id).getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  S.highlight = function (r, pad) {
+    var h = $('hl');
+    if (!r) { h.style.display = 'none'; return; }
+    pad = pad == null ? 10 : pad;
+    h.style.display = 'block';
+    h.style.left = (r.x - pad) + 'px'; h.style.top = (r.y - pad) + 'px';
+    h.style.width = (r.w + 2 * pad) + 'px'; h.style.height = (r.h + 2 * pad) + 'px';
+  };
+  S.cursor = function (x, y, show) {
+    var c = $('cursor');
+    c.style.display = show === false ? 'none' : 'block';
+    c.style.left = (x - 3) + 'px'; c.style.top = (y - 3) + 'px';
+  };
+  S.ripple = function (x, y, p) {    // p from 0 to 1, or null to hide
+    var r = $('ripple');
+    if (p == null) { r.style.display = 'none'; return; }
+    var d = 20 + 60 * p;
+    r.style.display = 'block'; r.style.opacity = 1 - p;
+    r.style.left = (x - d / 2) + 'px'; r.style.top = (y - d / 2) + 'px'; r.style.width = d + 'px'; r.style.height = d + 'px';
+  };
+  S.scrollY = function () { return S.win().scrollY; };
+  S.scrollTo = function (y) { S.win().scrollTo(0, y); };
+  S.scrollTarget = function (sel, top) {     // scroll position that puts an element "top" px (app pixels) below the window top
+    var el = S.doc().querySelector(sel);
+    var y = S.win().scrollY + el.getBoundingClientRect().top - (top == null ? 20 : top);
+    var max = S.doc().documentElement.scrollHeight - S.win().innerHeight;
+    return Math.max(0, Math.min(y, max));
+  };
+  S.show = function (id, o, disp) { var e = $(id); e.style.display = o > 0 ? (disp || 'block') : 'none'; e.style.opacity = o; };
+  S.gmail = function (to, su, body) {
+    $('gTo').textContent = to; $('gSu').textContent = su; $('gBody').textContent = body;
+    var g = $('gmail'); g.style.opacity = 0; g.style.display = 'block'; $('gBody').scrollTop = 0;   // always start at the top
+  };
+  S.dlName = function (n) { $('dlName').textContent = n; };
+</script>
+</body>
+</html>
