@@ -34,6 +34,14 @@
         'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
         'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
         'Spain', 'Sweden']
+    },
+    {
+      // Europe = the EU countries plus Iceland (not the UK: write "UK, Europe" to include it)
+      name: 'Europe', also: [],
+      members: ['Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czechia', 'Denmark', 'Estonia',
+        'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
+        'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
+        'Spain', 'Sweden', 'Iceland']
     }
   ];
 
