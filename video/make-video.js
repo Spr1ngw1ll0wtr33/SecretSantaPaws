@@ -13,6 +13,8 @@ const { execFileSync } = require('child_process');
 const WORK = process.argv[2];
 const OUT = process.argv[3];
 const FPS = 25;
+// Overall pace: pauses are multiplied by HOLD_PACE, movements by MOVE_PACE (1 = draft 1 timing)
+const HOLD_PACE = 0.72, MOVE_PACE = 0.85;
 const TEST_SHEET = path.join(__dirname, '..', 'test-dummy.xlsx');
 fs.mkdirSync(path.join(WORK, 'frames'), { recursive: true });
 
@@ -28,9 +30,9 @@ async function snap(seconds) {
   await page.screenshot({ path: file, type: 'jpeg', quality: 95 });
   list.push({ file, seconds });
 }
-const hold = s => snap(s);
+const hold = s => snap(s * HOLD_PACE);
 async function animate(seconds, fn) {
-  const steps = Math.max(1, Math.round(seconds * FPS));
+  const steps = Math.max(1, Math.round(seconds * MOVE_PACE * FPS));
   for (let i = 1; i <= steps; i++) { await fn(ease(i / steps)); await snap(1 / FPS); }
 }
 /* Time to read a caption calmly: about 140 words a minute, plus a pause */
