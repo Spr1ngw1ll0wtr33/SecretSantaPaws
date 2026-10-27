@@ -21,7 +21,9 @@
     { name: 'Netherlands', also: ['The Netherlands', 'Holland'] },
     { name: 'France', also: [] },
     { name: 'Italy', also: [] },
-    { name: 'Croatia', also: [] }
+    { name: 'Croatia', also: [] },
+    { name: 'Sweden', also: ['Sverige'] },
+    { name: 'Thailand', also: [] }
   ];
 
   /* Groups that can be used in the "Will Send To" column. */
