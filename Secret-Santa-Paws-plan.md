@@ -99,7 +99,7 @@ IG Account | Dog's Name | Address | Country of Residence | Will Send To | Email 
 (Older headings such as "Preferred Location For Gifting" and "Email addresses" are also recognised.)
 
 ### What can go in the country columns
-- **Country of Residence**: one of United Kingdom (UK), United States of America (USA), Canada, Australia, Iceland, Japan, Germany, Netherlands (The Netherlands), France, Italy, Croatia, Sweden, Thailand (Sweden and Thailand added 27/10/2026). Short forms and capitals don't matter.
+- **Country of Residence**: one of United Kingdom (UK), United States of America (USA), Canada, Australia, Iceland, Japan, Germany, Netherlands (The Netherlands), France, Italy, Croatia, Sweden, Thailand, Poland (Sweden and Thailand added 27/10/2026; Poland 30/10/2026). Short forms and capitals don't matter.
 - **Will Send To**: `Any`, or countries separated by commas, `&`, `and`, `or` or `/` (e.g. `Canada, USA` or `Canada & USA`), or a group: `EU` (the 27 EU member states) or `Europe` (EU + Iceland, added 27/10/2026; not the UK, so write `UK & Europe` to include it). Note: **Iceland is not in the EU.** Countries must be separated: `Canada USA` with no separator is not understood.
 - New countries are added in one line at the top of `matching.js`.
 

@@ -23,7 +23,8 @@
     { name: 'Italy', also: [] },
     { name: 'Croatia', also: [] },
     { name: 'Sweden', also: ['Sverige'] },
-    { name: 'Thailand', also: [] }
+    { name: 'Thailand', also: [] },
+    { name: 'Poland', also: ['Polska'] }
   ];
 
   /* Groups that can be used in the "Will Send To" column. */
