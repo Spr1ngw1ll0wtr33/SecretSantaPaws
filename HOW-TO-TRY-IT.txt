@@ -1,6 +1,5 @@
 SECRET SANTA PAWS - TRIAL RUN
 =============================
-Version 3, 26/10/2026
 
 The app is a web page. Your spreadsheet is read on your own device:
 it is never uploaded anywhere, and no email is sent unless you press

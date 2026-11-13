@@ -263,7 +263,7 @@
   <!-- STEP 4 -->
   <section class="card hidden" id="step4">
     <h2><span class="step">4</span> The email</h2>
-    <p>Edit the wording here (for example, to fill in the spending limits). These markers are swapped for the details of each email's match:
+    <p>Edit the wording here before sending: replace the <b>TBA</b> spending limits, <b>[OPENING DAY DATE]</b> and <b>#yourhashtag</b> with your group's details. These markers are swapped for the details of each email's match:
       <code class="ph">&lt;Dog Name(s)&gt;</code> <code class="ph">&lt;IG Account&gt;</code> <code class="ph">&lt;Address&gt;</code> <code class="ph">&lt;Email Address&gt;</code></p>
     <p>And this one for the dog(s) of the person <i>receiving</i> the email (it works in the subject line too):
       <code class="ph">&lt;Your Dog's Name&gt;</code></p>
@@ -326,13 +326,13 @@
   /* ------------------------------------------------------------------
      THE EMAIL WORDING – edit here to change the original wording.
      ------------------------------------------------------------------ */
-  var DEFAULT_SUBJECT = 'Secret Santa Paws 2026 – <Your Dog\'s Name>\'s match';
+  var DEFAULT_SUBJECT = 'Secret Santa Paws – <Your Dog\'s Name>\'s match';
   var DEFAULT_TEMPLATE = [
-    'Secret Santa Paws Gift Exchange 2026',
+    'Secret Santa Paws Gift Exchange',
     '',
     'Dear <Your Dog\'s Name>,',
     '',
-    'Thank you for taking part in the 2026 Secret Santa Paws Gift Exchange. This email includes the details of the dog that has been selected for you to send a gift to, including their Instagram account name, name of the dog and their full address and email.',
+    'Thank you for taking part in the Secret Santa Paws Gift Exchange. This email includes the details of the dog that has been selected for you to send a gift to, including their Instagram account name, name of the dog and their full address and email.',
     '',
     'You can choose to send your gift directly to your match or to purchase a gift online from a store in their country that can deliver to them on your behalf. The maximum amount you should spend on the gift is shown in the currency table below. The maximum amount is per entry. If there is more than one dog\'s name listed as your match, then this amount is shared between the dogs. If you have opted for more than one entry in the draw, i.e. one for each of your dogs, then you will receive a separate match for each entry and you should spend up to the maximum amount for each match. Please note this is a maximum amount and if you want to gift less or you want to make something to send yourself you should feel free to do so.',
     '',
@@ -340,9 +340,9 @@
     '',
     'If you are sending directly, then you may also include in your parcel a card or note to tell your match who their Secret Santa Paws is. If this is not possible or you are sending your gift via a store, you can instead DM them on the opening day, so they know it is you.',
     '',
-    'Once you have purchased your gift, you should arrange shipment of it as soon as possible. All gifts should arrive latest by Sunday 20th December 2026, when we will have our special opening day.',
+    'Once you have purchased your gift, you should arrange shipment of it as soon as possible. All gifts should arrive by [OPENING DAY DATE] at the latest, when we will have our special opening day.',
     '',
-    'On the 20th December you are free to open your gift, and post showing what you have received and to thank your Secret Santa Paws. You should use the hashtag #secretsantapaws2026.',
+    'On the opening day you are free to open your gift, and post showing what you have received and to thank your Secret Santa Paws. You should use the hashtag #yourhashtag.',
     '',
     'If you have any questions feel free to ask them in the gifting group. Please do not reply to this email, as we are trying to keep the admin to a minimum.',
     '',
@@ -446,7 +446,7 @@
         html += '<div class="note good"><h3>✔︎ ' + res.people.length + ' entries from ' + nAcc + ' accounts read from “' + esc(file.name) + '”</h3>' +
           '<div class="chips">' + Object.keys(by).sort().map(function (k) { return '<span class="chip">' + esc(k) + ': ' + by[k] + '</span>'; }).join('') + '</div>' +
           '<div>' + anyCount + ' entries will send anywhere; ' + (res.people.length - anyCount) + ' have limited where they will send.' +
-          (res.people.length > nAcc ? ' ' + (res.people.length - nAcc) + ' extra entries come from accounts entering more than one dog.' : '') + '</div></div>';
+          (res.people.length > nAcc ? ' ' + (res.people.length - nAcc) + (res.people.length - nAcc === 1 ? ' extra entry comes' : ' extra entries come') + ' from accounts entering more than one dog.' : '') + '</div></div>';
       }
       html += notes('warn', 'Worth a look (these won’t stop the draw)', res.warnings);
       $('loadResult').innerHTML = html;

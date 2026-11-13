@@ -478,8 +478,8 @@
         };
       }
       return {
-        title: p.group.length + ' entries have limited where they will send, and between them there are only ' +
-          p.helpers.length + (p.helpers.length === 1 ? ' entry' : ' entries') + ' they are allowed to send to.',
+        title: p.group.length + ' entries have limited where they will send, and between them there ' +
+          (p.helpers.length === 1 ? 'is only 1 entry' : 'are only ' + p.helpers.length + ' entries') + ' they are allowed to send to.',
         lists: [{ heading: 'Restricted senders', names: names(p.group) },
                 { heading: 'Entries they could send to', names: names(p.helpers) }],
         action: 'One of them needs to widen their Will Send To.'
